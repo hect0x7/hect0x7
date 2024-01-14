@@ -2,7 +2,7 @@
 
 ---
 
-[![hect0x7's GitHub stats](https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true&theme=radical&include_all_commits=true)](https://github.com/anuraghazra/github-readme-stats)
+[![hect0x7's GitHub stats](https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true&theme=radical)](https://github.com/anuraghazra/github-readme-stats)
 [![hect0x7's GitHub stats](https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25&theme=radical)](https://github.com/anuraghazra/github-readme-stats) 
 
 About me:
