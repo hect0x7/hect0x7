@@ -2,8 +2,18 @@
 
 ---
 
-[![hect0x7's GitHub stats](https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true&theme=radical)](https://github.com/anuraghazra/github-readme-stats)
-[![hect0x7's GitHub stats](https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25&theme=radical)](https://github.com/anuraghazra/github-readme-stats) 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true&theme=radica">
+  <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true">
+  <img alt="hect0x7's GitHub stats" src="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25&theme=radical">
+  <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25">
+  <img alt="hect0x7's GitHub Top Lang" src="https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25">
+</picture>
+
 
 About me:
 
