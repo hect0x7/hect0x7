@@ -3,7 +3,7 @@
 ---
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true&theme=radica">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true&theme=radical">
   <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true">
   <img alt="hect0x7's GitHub stats" src="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true">
 </picture>
