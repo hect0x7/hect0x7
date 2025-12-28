@@ -4,15 +4,15 @@
 
 <a href="https://github.com/hect0x7/hect0x7">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true&theme=radical">
-    <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true">
-    <img alt="hect0x7's GitHub stats" src="https://github-readme-stats.vercel.app/api?username=hect0x7&show_icons=true">
+    <source media="(prefers-color-scheme: dark)" srcset="picture/stats-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="picture/stats-light.svg">
+    <img alt="hect0x7's GitHub stats" src="picture/stats-light.svg">
   </picture>
   
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25&theme=radical">
-    <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25">
-    <img alt="hect0x7's GitHub Top Lang" src="https://github-readme-stats.vercel.app/api/top-langs/?username=hect0x7&layout=compact&line_height=25">
+    <source media="(prefers-color-scheme: dark)" srcset="picture/top-langs-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="picture/top-langs-light.svg">
+    <img alt="hect0x7's GitHub Top Lang" src="picture/top-langs-light.svg">
   </picture>
 </a>
 
