@@ -84,3 +84,20 @@ jobs:
           build_dir: dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # repo pin card
+      - name: Generate repo pin (light)
+        uses: readme-tools/github-readme-stats-action@v1
+        with:
+          card: pin
+          options: username=${{ github.repository_owner }}&repo=JMComic-Crawler-Python
+          path: profile/pin-JMComic-Crawler-Python.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate repo pin (dark)
+        uses: readme-tools/github-readme-stats-action@v1
+        with:
+          card: pin
+          options: username=${{ github.repository_owner }}&repo=JMComic-Crawler-Python&theme=radical
+          path: profile/pin-JMComic-Crawler-Python-dark.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
