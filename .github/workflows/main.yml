@@ -98,7 +98,7 @@ jobs:
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: pin
-          options: username=${{ github.repository_owner }}&repo=jmcomic-ai&show_owner=true
+          options: username=${{ github.repository_owner }}&repo=jmcomic-ai&show_owner=true&description_lines_count=1
           path: profile/pin-jmcomic-ai.svg
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -106,7 +106,7 @@ jobs:
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: pin
-          options: username=${{ github.repository_owner }}&repo=jmcomic-ai&theme=radical&show_owner=true
+          options: username=${{ github.repository_owner }}&repo=jmcomic-ai&theme=radical&show_owner=true&description_lines_count=1
           path: profile/pin-jmcomic-ai-dark.svg
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -114,7 +114,7 @@ jobs:
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: pin
-          options: username=${{ github.repository_owner }}&repo=plugin-jm-server&show_owner=true&description_lines_count=3
+          options: username=${{ github.repository_owner }}&repo=plugin-jm-server&show_owner=true&description_lines_count=2
           path: profile/pin-plugin-jm-server.svg
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -122,7 +122,7 @@ jobs:
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: pin
-          options: username=${{ github.repository_owner }}&repo=plugin-jm-server&theme=radical&show_owner=true&description_lines_count=3
+          options: username=${{ github.repository_owner }}&repo=plugin-jm-server&theme=radical&show_owner=true&description_lines_count=2
           path: profile/pin-plugin-jm-server-dark.svg
           token: ${{ secrets.GITHUB_TOKEN }}
           
