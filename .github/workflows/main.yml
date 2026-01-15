@@ -14,14 +14,17 @@ on:
     - master
 
 jobs:
-  generate:
+  # Job 1: Generate basic stats and the snake game animation
+  generate-base:
     permissions:
       contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create profile directory
+        run: mkdir -p profile
 
       - name: Generate stats card (Light)
         uses: readme-tools/github-readme-stats-action@v1
@@ -55,8 +58,7 @@ jobs:
           path: profile/top-langs-dark.svg
           token: ${{ secrets.GITHUB_TOKEN }}
 
-
-      # generates a snake game from a github user (<github_user_name>) contributions graph, output a svg animation at <svg_out_path>
+      # generates a snake game from a github user contributions graph
       - name: generate github-contribution-grid-snake.svg
         uses: Platane/snk/svg-only@v3
         with:
@@ -65,8 +67,7 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # push the content of <build_dir> to a branch
-      # the content will be available at https://raw.githubusercontent.com/<github_user>/<repository>/<target_branch>/<file> , or as github page
+      # push snake animation to output branch (independent of master)
       - name: push github-contribution-grid-snake.svg to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
@@ -75,75 +76,53 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # repo pin card
-      - name: Generate repo pin (light)
+      - name: Upload base cards as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-cards
+          path: profile/*.svg
+
+  # Job 2: Generate repository pin cards in parallel
+  generate-pins:
+    strategy:
+      matrix:
+        repo: [JMComic-Crawler-Python, jmcomic-ai, plugin-jm-server, JMComic-APK]
+        theme: [light, dark]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate repo pin (${{ matrix.repo }}) (${{ matrix.theme }})
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: pin
-          options: username=${{ github.repository_owner }}&repo=JMComic-Crawler-Python&show_owner=true
-          path: profile/pin-JMComic-Crawler-Python.svg
+          options: username=${{ github.repository_owner }}&repo=${{ matrix.repo }}&show_owner=true${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
+          path: pin-${{ matrix.repo }}${{ matrix.theme == 'dark' && '-dark' || '' }}.svg
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate repo pin (dark)
-        uses: readme-tools/github-readme-stats-action@v1
+      
+      - name: Upload pin artifact
+        uses: actions/upload-artifact@v4
         with:
-          card: pin
-          options: username=${{ github.repository_owner }}&repo=JMComic-Crawler-Python&theme=radical&show_owner=true
-          path: profile/pin-JMComic-Crawler-Python-dark.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: pin-${{ matrix.repo }}-${{ matrix.theme }}
+          path: pin-${{ matrix.repo }}${{ matrix.theme == 'dark' && '-dark' || '' }}.svg
 
-      - name: Generate repo pin (JMComic AI) (light)
-        uses: readme-tools/github-readme-stats-action@v1
+  # Job 3: Collect all cards and push to master in a single commit
+  deploy:
+    needs: [generate-base, generate-pins]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          card: pin
-          options: username=${{ github.repository_owner }}&repo=jmcomic-ai&show_owner=true
-          path: profile/pin-jmcomic-ai.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          path: profile
+          merge-multiple: true
 
-      - name: Generate repo pin (JMComic AI) (dark)
-        uses: readme-tools/github-readme-stats-action@v1
-        with:
-          card: pin
-          options: username=${{ github.repository_owner }}&repo=jmcomic-ai&theme=radical&show_owner=true
-          path: profile/pin-jmcomic-ai-dark.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate repo pin (plugin-jm-server) (light)
-        uses: readme-tools/github-readme-stats-action@v1
-        with:
-          card: pin
-          options: username=${{ github.repository_owner }}&repo=plugin-jm-server&show_owner=true
-          path: profile/pin-plugin-jm-server.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate repo pin (plugin-jm-server) (dark)
-        uses: readme-tools/github-readme-stats-action@v1
-        with:
-          card: pin
-          options: username=${{ github.repository_owner }}&repo=plugin-jm-server&theme=radical&show_owner=true
-          path: profile/pin-plugin-jm-server-dark.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate repo pin (JMComic-APK) (light)
-        uses: readme-tools/github-readme-stats-action@v1
-        with:
-          card: pin
-          options: username=${{ github.repository_owner }}&repo=JMComic-APK&show_owner=true
-          path: profile/pin-JMComic-APK.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate repo pin (JMComic-APK) (dark)
-        uses: readme-tools/github-readme-stats-action@v1
-        with:
-          card: pin
-          options: username=${{ github.repository_owner }}&repo=JMComic-APK&theme=radical&show_owner=true
-          path: profile/pin-JMComic-APK-dark.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit cards
+      - name: Commit and Push all cards
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git add profile/*.svg
-          git commit -m "Update my cards" || exit 0
+          git commit -m "chore: update profile cards (all-in-one)" || exit 0
           git push
