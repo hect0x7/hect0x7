@@ -9,7 +9,7 @@
         aria-labelledby="descId"
       >
         <title id="titleId">hect0x7's GitHub Stats, Rank: A-</title>
-        <desc id="descId">Total Stars Earned: 10641, Total Commits  (last year) : 110, Total PRs: 192, Total Issues: 9, Contributed to (last year): 0</desc>
+        <desc id="descId">Total Stars Earned: 10646, Total Commits  (last year) : 110, Total PRs: 193, Total Issues: 9, Contributed to (last year): 0</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -73,7 +73,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 67.19953018339336;
+        stroke-dashoffset: 67.1381223405654;
       }
     }
   
@@ -192,7 +192,7 @@
         x="219.01"
         y="12.5"
         data-testid="prs"
-      >192</text>
+      >193</text>
     </g>
   </g><g transform="translate(0, 75)">
     <g class="stagger" style="animation-delay: 900ms" transform="translate(25, 0)">
