@@ -229,14 +229,12 @@ class AssetGenerationTest(unittest.TestCase):
 
     def test_validator_cli_runs_from_repository_root(self):
         repositories = [repository(i) for i in range(9)]
-        with tempfile.TemporaryDirectory() as output_dir, tempfile.TemporaryDirectory() as readme_dir, tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", encoding="utf-8"
-        ) as config_file:
+        with tempfile.TemporaryDirectory() as output_dir, tempfile.TemporaryDirectory() as readme_dir, tempfile.TemporaryDirectory() as config_dir:
             output = Path(output_dir)
             readmes = Path(readme_dir)
             config = {"public_dependents": 109, "repositories": repositories}
-            json.dump(config, config_file)
-            config_file.flush()
+            config_file = Path(config_dir) / "config.json"
+            config_file.write_text(json.dumps(config), encoding="utf-8")
             generate_assets(repositories, 109, output, readmes)
 
             result = subprocess.run(
@@ -244,7 +242,7 @@ class AssetGenerationTest(unittest.TestCase):
                     sys.executable,
                     "scripts/validate_used_by_output.py",
                     "--config",
-                    config_file.name,
+                    str(config_file),
                     "--output",
                     output_dir,
                     "--readme-dir",
