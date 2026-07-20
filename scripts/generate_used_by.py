@@ -29,7 +29,7 @@ COPY = {
         "showing": "当前展示",
         "top": "Top {count}",
         "notice_label": "自动生成",
-        "summary_notice": "基于 GitHub 公开数据自动生成；收录不代表认可、推荐或关联。",
+        "summary_notice": "根据 GitHub 公开数据自动整理，用于展示社区中的相关项目。",
     },
     "en": {
         "heading": "Projects using jmcomic",
@@ -37,7 +37,7 @@ COPY = {
         "showing": "Showing",
         "top": "Top {count}",
         "notice_label": "Automated",
-        "summary_notice": "Generated from public GitHub data; inclusion does not imply endorsement or affiliation.",
+        "summary_notice": "Automatically organized from public GitHub data to showcase related projects in the community.",
     },
     "ja": {
         "heading": "jmcomic を使用しているプロジェクト",
@@ -45,7 +45,7 @@ COPY = {
         "showing": "表示中",
         "top": "上位 {count} 件",
         "notice_label": "自動生成",
-        "summary_notice": "GitHub の公開データから自動生成。掲載は推奨、承認、提携を意味しません。",
+        "summary_notice": "GitHub の公開データをもとに自動整理し、コミュニティの関連プロジェクトを紹介しています。",
     },
     "ko": {
         "heading": "jmcomic을 사용하는 프로젝트",
@@ -53,7 +53,7 @@ COPY = {
         "showing": "현재 표시",
         "top": "상위 {count}개",
         "notice_label": "자동 생성",
-        "summary_notice": "GitHub 공개 데이터에서 자동 생성되며, 목록 포함은 승인, 추천 또는 제휴를 의미하지 않습니다.",
+        "summary_notice": "GitHub 공개 데이터를 바탕으로 자동 정리하여 커뮤니티의 관련 프로젝트를 소개합니다.",
     },
 }
 
@@ -81,12 +81,8 @@ PALETTES = {
         "text": "#434d58",
         "muted": "#6e7781",
         "divider": "#e4e2e2",
-        "chip": "#f6f8fa",
-        "chip_border": "#d0d7de",
         "star": "#ff8500",
-        "star_label": "#b84f00",
         "fork": "#0969da",
-        "fork_label": "#0550ae",
     },
     "dark": {
         "canvas": "#0d1117",
@@ -96,12 +92,8 @@ PALETTES = {
         "text": "#c9d1d9",
         "muted": "#8b949e",
         "divider": "#30363d",
-        "chip": "#21262d",
-        "chip_border": "#30363d",
         "star": "#ffb000",
-        "star_label": "#f2cc60",
         "fork": "#58a6ff",
-        "fork_label": "#79c0ff",
     },
 }
 
@@ -109,14 +101,14 @@ PALETTES = {
 def format_date(value, locale):
     date = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if locale == "zh-CN":
-        return f"更新于 {date:%Y-%m-%d}"
+        return f"{date:%Y-%m-%d}"
     if locale == "en":
         months = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-        return f"Updated {months[date.month - 1]} {date.day}, {date.year}"
+        return f"{months[date.month - 1]} {date.day}, {date.year}"
     if locale == "ja":
-        return f"{date.year}年{date.month}月{date.day}日更新"
+        return f"{date.year}年{date.month}月{date.day}日"
     if locale == "ko":
-        return f"{date.year}년 {date.month}월 {date.day}일 업데이트"
+        return f"{date.year}년 {date.month}월 {date.day}일"
     raise ValueError(f"unsupported locale: {locale}")
 
 
@@ -187,6 +179,8 @@ def render_card(repository, locale, theme):
     description = repository["descriptions"].get(locale) or repository["descriptions"]["en"]
     description_lines = [escape(line) for line in wrap_text(description, width=38)]
     date = escape(format_date(repository["pushed_at"], locale))
+    date_width = sum(10 if unicodedata.east_asian_width(char) in "WFA" else 5.5 for char in date)
+    date_icon_x = max(146, round(266 - date_width - 17))
     stars = compact_count(repository["stargazers_count"])
     forks = compact_count(repository["forks_count"])
     desc_nodes = "".join(
@@ -198,30 +192,29 @@ def render_card(repository, locale, theme):
     text {{ font-family:{font_family()}; }}
     .title {{ font-size:15px;font-weight:600;fill:{colors['title']}; }}
     .description {{ font-size:12px;fill:{colors['text']}; }}
-    .metric {{ font-size:11px;font-weight:600; }}
-    .value {{ font-size:11px;fill:{colors['text']}; }}
-    .updated {{ font-size:10px;fill:{colors['muted']}; }}
+    .metric-value {{ font-size:11px;font-weight:600;fill:{colors['text']}; }}
+    .updated {{ font-size:10px;fill:{colors['muted']};letter-spacing:.1px; }}
   </style>
-  <rect x="4" y="4" width="272" height="140" rx="6" fill="{colors['card']}" stroke="{colors['border']}"/>
+  <rect x="4" y="4" width="272" height="140" rx="10" fill="{colors['card']}" stroke="{colors['border']}"/>
   <text x="14" y="29" class="title">{display_name}</text>
   {desc_nodes}
-  <line x1="14" y1="86" x2="266" y2="86" stroke="{colors['divider']}"/>
-  <g transform="translate(14 94)">
-    <rect width="104" height="25" rx="5" fill="{colors['chip']}" stroke="{colors['chip_border']}"/>
-    <path data-icon="star" d="M14 4.2l2.6 5.27 5.82.85-4.21 4.1.99 5.8L14 17.48l-5.2 2.74.99-5.8-4.21-4.1 5.82-.85L14 4.2z" fill="{colors['star']}" transform="translate(1 0) scale(.72)"/>
-    <text x="28" y="17" class="metric" fill="{colors['star_label']}">Stars</text>
-    <text x="74" y="17" class="value">{stars}</text>
+  <line x1="14" y1="91" x2="266" y2="91" stroke="{colors['divider']}"/>
+  <g transform="translate(14 105)">
+    <path data-icon="star" d="M8 .75l2.16 4.37 4.82.7-3.49 3.4.82 4.8L8 11.75l-4.31 2.27.82-4.8-3.49-3.4 4.82-.7L8 .75z" fill="{colors['star']}"/>
+    <text x="22" y="12" class="metric-value">{stars}</text>
   </g>
-  <g transform="translate(126 94)">
-    <rect width="104" height="25" rx="5" fill="{colors['chip']}" stroke="{colors['chip_border']}"/>
-    <g data-icon="fork" transform="translate(7 3) scale(.72)" fill="none" stroke="{colors['fork']}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="6" cy="4" r="2.5"/><circle cx="18" cy="4" r="2.5"/><circle cx="12" cy="20" r="2.5"/>
-      <path d="M6 6.5v1.2c0 3.3 2.7 6 6 6v3.8M18 6.5v1.2c0 3.3-2.7 6-6 6"/>
+  <g transform="translate(79 105)">
+    <g data-icon="fork" fill="none" stroke="{colors['fork']}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="4" cy="3" r="2"/><circle cx="12" cy="3" r="2"/><circle cx="8" cy="13" r="2"/>
+      <path d="M4 5v1c0 2.2 1.8 4 4 4v1M12 5v1c0 2.2-1.8 4-4 4"/>
     </g>
-    <text x="32" y="17" class="metric" fill="{colors['fork_label']}">Forks</text>
-    <text x="75" y="17" class="value">{forks}</text>
+    <text x="22" y="12" class="metric-value">{forks}</text>
   </g>
-  <text x="266" y="136" text-anchor="end" class="updated">{date}</text>
+  <g data-icon="activity" transform="translate({date_icon_x} 107)" fill="none" stroke="{colors['muted']}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="6" cy="6" r="5"/>
+    <path d="M6 3v3l2 1.5"/>
+  </g>
+  <text x="266" y="117" text-anchor="end" class="updated">{date}</text>
 </svg>'''
 
 

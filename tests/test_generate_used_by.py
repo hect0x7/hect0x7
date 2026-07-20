@@ -49,7 +49,12 @@ class CardRenderingTest(unittest.TestCase):
         self.assertIn("#58a6ff", dark)
         self.assertIn('data-icon="star"', light)
         self.assertIn('data-icon="fork"', light)
-        self.assertIn('stroke-width="2.4"', light)
+        self.assertIn('data-icon="activity"', light)
+        self.assertIn('data-icon="activity" transform="translate(194 107)"', light)
+        self.assertIn('stroke-width="1.7"', light)
+        self.assertEqual(1, light.count("<rect"))
+        self.assertNotIn(">Stars<", light)
+        self.assertNotIn(">Forks<", light)
         self.assertNotIn("⑂", light)
 
     def test_card_uses_compact_three_column_width(self):
@@ -84,10 +89,10 @@ class CardRenderingTest(unittest.TestCase):
 
     def test_card_localizes_description_and_absolute_date(self):
         expected_dates = {
-            "zh-CN": "更新于 2026-07-20",
-            "en": "Updated Jul 20, 2026",
-            "ja": "2026年7月20日更新",
-            "ko": "2026년 7월 20일 업데이트",
+            "zh-CN": "2026-07-20",
+            "en": "Jul 20, 2026",
+            "ja": "2026年7月20日",
+            "ko": "2026년 7월 20일",
         }
 
         for locale, expected_date in expected_dates.items():
@@ -109,7 +114,6 @@ class ReadmeRenderingTest(unittest.TestCase):
         readme = render_readme([repository(i) for i in range(9)], "zh-CN", 109)
 
         self.assertIn("使用 jmcomic 的项目", readme)
-        self.assertNotIn("不代表认可、推荐或存在关联关系", readme)
         self.assertNotIn("> **自动生成**", readme)
         self.assertNotIn("<table>", readme)
         self.assertEqual(1, readme.count("<picture>"))
@@ -136,10 +140,10 @@ class ReadmeRenderingTest(unittest.TestCase):
 
     def test_summary_embeds_large_localized_notice_and_exact_public_count(self):
         expected_notices = {
-            "zh-CN": "基于 GitHub 公开数据自动生成；收录不代表认可、推荐或关联。",
-            "en": "Generated from public GitHub data; inclusion does not imply endorsement or affiliation.",
-            "ja": "GitHub の公開データから自動生成。掲載は推奨、承認、提携を意味しません。",
-            "ko": "GitHub 공개 데이터에서 자동 생성되며, 목록 포함은 승인, 추천 또는 제휴를 의미하지 않습니다.",
+            "zh-CN": "根据 GitHub 公开数据自动整理，用于展示社区中的相关项目。",
+            "en": "Automatically organized from public GitHub data to showcase related projects in the community.",
+            "ja": "GitHub の公開データをもとに自動整理し、コミュニティの関連プロジェクトを紹介しています。",
+            "ko": "GitHub 공개 데이터를 바탕으로 자동 정리하여 커뮤니티의 관련 프로젝트를 소개합니다.",
         }
         for locale, notice in expected_notices.items():
             with self.subTest(locale=locale):
