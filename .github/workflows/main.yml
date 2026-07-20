@@ -188,6 +188,10 @@ jobs:
           grep -q '<svg' star-history/star-history-dark.svg
           grep -q 'Star History' star-history/star-history.svg
           grep -q 'GitHub Stars' star-history/star-history.svg
+          grep -q 'hect0x7/JMComic-Crawler-Python' star-history/star-history.svg
+          grep -q 'hect0x7/JMComic-APK' star-history/star-history.svg
+          grep -q 'hect0x7/JMComic-Crawler-Python' star-history/star-history-dark.svg
+          grep -q 'hect0x7/JMComic-APK' star-history/star-history-dark.svg
           ! grep -q 'star-history.com' star-history/star-history.svg
           ! grep -q 'star-history.com' star-history/star-history-dark.svg
           ! grep -Eq '<image[^>]+width="20"[^>]+height="20"' star-history/star-history.svg

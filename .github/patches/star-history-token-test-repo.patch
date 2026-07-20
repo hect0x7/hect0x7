@@ -1,3 +1,11 @@
+diff --git a/backend/main.ts b/backend/main.ts
+--- a/backend/main.ts
++++ b/backend/main.ts
+@@ -68,2 +68,2 @@
+-    // Lowercase repo names (GitHub is case-insensitive)
+-    const normalized = repos.split(",").map((r) => r.trim().toLowerCase()).filter(Boolean).join(",");
++    // Normalize whitespace while preserving repository name casing.
++    const normalized = repos.split(",").map((r) => r.trim()).filter(Boolean).join(",");
 diff --git a/backend/token.ts b/backend/token.ts
 index 160e0c3..904336f 100644
 --- a/backend/token.ts
