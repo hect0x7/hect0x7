@@ -102,12 +102,12 @@ jobs:
       - name: Restore cached star history
         shell: bash
         run: |
-          mkdir -p .star-history
+          mkdir -p star-history
           if git fetch origin output:refs/remotes/origin/output --depth=1 && \
-             git show origin/output:profile/star-history.json > .star-history/star-history.json 2>/dev/null; then
+             git show origin/output:profile/star-history.json > star-history/star-history.json 2>/dev/null; then
             echo "Restored star history cache from output branch"
           else
-            printf '{"version":1,"repositories":{}}\n' > .star-history/star-history.json
+            printf '{"version":1,"repositories":{}}\n' > star-history/star-history.json
           fi
 
       - name: Generate star history
@@ -116,15 +116,15 @@ jobs:
         run: |
           python .github/scripts/generate_star_history.py \
             --config .github/star-history-repositories.json \
-            --cache .star-history/star-history.json \
-            --output .star-history/star-history.svg \
-            --dark-output .star-history/star-history-dark.svg
+            --cache star-history/star-history.json \
+            --output star-history/star-history.svg \
+            --dark-output star-history/star-history-dark.svg
 
       - name: Upload star history artifact
         uses: actions/upload-artifact@v4
         with:
           name: star-history-assets
-          path: .star-history/star-history*
+          path: star-history/star-history*
           if-no-files-found: error
 
   # Job 5: Deploy
