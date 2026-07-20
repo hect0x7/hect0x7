@@ -187,7 +187,7 @@ def render_card(repository, locale, theme):
         f'<text x="14" y="{50 + index * 17}" class="description">{line}</text>'
         for index, line in enumerate(description_lines)
     )
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="280" height="148" viewBox="0 0 280 148" role="img" aria-label="{name}">
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="280" height="136" viewBox="0 0 280 136" role="img" aria-label="{name}">
   <style>
     text {{ font-family:{font_family()}; }}
     .title {{ font-size:15px;font-weight:600;fill:{colors['title']}; }}
@@ -195,7 +195,7 @@ def render_card(repository, locale, theme):
     .metric-value {{ font-size:11px;font-weight:600;fill:{colors['text']}; }}
     .updated {{ font-size:10px;fill:{colors['muted']};letter-spacing:.1px; }}
   </style>
-  <rect x="4" y="4" width="272" height="140" rx="10" fill="{colors['card']}" stroke="{colors['border']}"/>
+  <rect x="4" y="4" width="272" height="128" rx="10" fill="{colors['card']}" stroke="{colors['border']}"/>
   <text x="14" y="29" class="title">{display_name}</text>
   {desc_nodes}
   <line x1="14" y1="91" x2="266" y2="91" stroke="{colors['divider']}"/>
@@ -246,8 +246,8 @@ def render_showcase(repositories, public_dependents, locale, theme):
         f"{{{SVG_NS}}}svg",
         {
             "width": "860",
-            "height": "620",
-            "viewBox": "0 0 860 620",
+            "height": "584",
+            "viewBox": "0 0 860 584",
             "role": "img",
             "aria-label": COPY[locale]["heading"],
         },
@@ -259,7 +259,7 @@ def render_showcase(repositories, public_dependents, locale, theme):
     for index, repository in enumerate(repositories):
         card = ET.fromstring(render_card(repository, locale, theme))
         card.set("x", str((index % 3) * 290))
-        card.set("y", str(152 + (index // 3) * 156))
+        card.set("y", str(152 + (index // 3) * 144))
         root.append(card)
     return ET.tostring(root, encoding="unicode")
 

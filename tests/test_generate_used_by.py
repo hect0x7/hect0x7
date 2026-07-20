@@ -60,8 +60,8 @@ class CardRenderingTest(unittest.TestCase):
     def test_card_uses_compact_three_column_width(self):
         card = render_card(repository(), "zh-CN", "light")
 
-        self.assertIn('width="280" height="148"', card)
-        self.assertIn('viewBox="0 0 280 148"', card)
+        self.assertIn('width="280" height="136"', card)
+        self.assertIn('viewBox="0 0 280 136"', card)
 
     def test_compact_card_truncates_long_repository_name(self):
         item = repository()
@@ -161,14 +161,14 @@ class ReadmeRenderingTest(unittest.TestCase):
         nested = root.findall("{http://www.w3.org/2000/svg}svg")
 
         self.assertEqual("860", root.get("width"))
-        self.assertEqual("620", root.get("height"))
+        self.assertEqual("584", root.get("height"))
         self.assertEqual(10, len(nested))
         self.assertEqual(("0", "0"), (nested[0].get("x"), nested[0].get("y")))
         self.assertEqual(("0", "152"), (nested[1].get("x"), nested[1].get("y")))
         self.assertEqual(("290", "152"), (nested[2].get("x"), nested[2].get("y")))
         self.assertEqual(("580", "152"), (nested[3].get("x"), nested[3].get("y")))
-        self.assertEqual(("0", "464"), (nested[7].get("x"), nested[7].get("y")))
-        self.assertEqual(("580", "464"), (nested[9].get("x"), nested[9].get("y")))
+        self.assertEqual(("0", "440"), (nested[7].get("x"), nested[7].get("y")))
+        self.assertEqual(("580", "440"), (nested[9].get("x"), nested[9].get("y")))
         self.assertIn("使用 jmcomic 的项目", showcase)
         self.assertIn("owner8 / repo8", showcase)
 
