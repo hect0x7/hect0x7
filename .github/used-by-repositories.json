@@ -1,0 +1,50 @@
+{
+  "public_dependents": 109,
+  "repositories": [
+    {
+      "owner": "hect0x7",
+      "repo": "JMComic-APK",
+      "slug": "hect0x7--JMComic-APK"
+    },
+    {
+      "owner": "tonquer",
+      "repo": "JMComic-qt",
+      "slug": "tonquer--JMComic-qt"
+    },
+    {
+      "owner": "RTGS2017",
+      "repo": "NagaAgent",
+      "slug": "RTGS2017--NagaAgent"
+    },
+    {
+      "owner": "GEMILUXVII",
+      "repo": "astrbot_plugin_jm_cosmos",
+      "slug": "GEMILUXVII--astrbot_plugin_jm_cosmos"
+    },
+    {
+      "owner": "AOrbitron",
+      "repo": "Eridanus",
+      "slug": "AOrbitron--Eridanus"
+    },
+    {
+      "owner": "hect0x7",
+      "repo": "jmcomic-ai",
+      "slug": "hect0x7--jmcomic-ai"
+    },
+    {
+      "owner": "AmethystTim",
+      "repo": "JM-PDF-plugin",
+      "slug": "AmethystTim--JM-PDF-plugin"
+    },
+    {
+      "owner": "hect0x7",
+      "repo": "jm-view-server",
+      "slug": "hect0x7--jm-view-server"
+    },
+    {
+      "owner": "ClovertaTheTrilobita",
+      "repo": "SanYeCao-Nonebot",
+      "slug": "ClovertaTheTrilobita--SanYeCao-Nonebot"
+    }
+  ]
+}
