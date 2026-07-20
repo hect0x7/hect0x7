@@ -104,19 +104,12 @@ def fetch_daily_history(repository, expected_count, token):
             if starred_at:
                 daily_counts[starred_at[:10]] += 1
 
-    fetched_count = sum(daily_counts.values())
-    if fetched_count != expected_count:
-        raise RuntimeError(
-            f"Fetched {fetched_count} stargazers for {repository}, "
-            f"but GitHub reports {expected_count}. Refusing to replace the cache."
-        )
-
     cumulative = 0
     history = []
     for day, count in sorted(daily_counts.items()):
         cumulative += count
         history.append([day, cumulative])
-    return history
+    return history, cumulative
 
 
 def update_cache(repositories, cache, token):
@@ -134,9 +127,24 @@ def update_cache(repositories, cache, token):
             continue
 
         print(f"Refreshing history for {repository} ({expected_count} stars)")
+        history, fetched_count = fetch_daily_history(repository, expected_count, token)
+        current_count = github_request(f"/repos/{repository}", token)["stargazers_count"]
+        count_drift = abs(fetched_count - current_count)
+        if count_drift > 2:
+            raise RuntimeError(
+                f"Fetched {fetched_count} stargazers for {repository}, "
+                f"but GitHub now reports {current_count}. Refusing to replace the cache."
+            )
+        if count_drift:
+            print(
+                f"warning: {repository} changed during pagination "
+                f"({fetched_count} fetched, {current_count} currently reported); "
+                "the next run will refresh it again",
+                file=sys.stderr,
+            )
         updated[repository] = {
-            "stargazers_count": expected_count,
-            "history": fetch_daily_history(repository, expected_count, token),
+            "stargazers_count": fetched_count,
+            "history": history,
         }
 
     cache["repositories"] = updated
