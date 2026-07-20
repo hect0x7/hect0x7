@@ -88,9 +88,47 @@ jobs:
           path: pin-${{ matrix.repo }}${{ matrix.theme == 'dark' && '-dark' || '' }}.svg
           if-no-files-found: error
 
-  # Job 4: Deploy
+  # Job 4: Star History
+  generate-star-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout generator
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore cached star history
+        shell: bash
+        run: |
+          mkdir -p .star-history
+          if git fetch origin output:refs/remotes/origin/output --depth=1 && \
+             git show origin/output:profile/star-history.json > .star-history/star-history.json 2>/dev/null; then
+            echo "Restored star history cache from output branch"
+          else
+            printf '{"version":1,"repositories":{}}\n' > .star-history/star-history.json
+          fi
+
+      - name: Generate star history
+        env:
+          GITHUB_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}
+        run: |
+          python .github/scripts/generate_star_history.py \
+            --config .github/star-history-repositories.json \
+            --cache .star-history/star-history.json \
+            --output .star-history/star-history.svg \
+            --dark-output .star-history/star-history-dark.svg
+
+      - name: Upload star history artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: star-history-assets
+          path: .star-history/star-history*
+          if-no-files-found: error
+
+  # Job 5: Deploy
   deploy:
-    needs: [generate-snake, generate-main-stats, generate-pins]
+    needs: [generate-snake, generate-main-stats, generate-pins, generate-star-history]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -117,6 +155,12 @@ jobs:
           pattern: pin-*
           path: dist/profile
           merge-multiple: true
+
+      - name: Download star history artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: star-history-assets
+          path: dist/profile
 
       - name: Validate output asset manifest
         run: bash tests/validate-output-assets.sh dist

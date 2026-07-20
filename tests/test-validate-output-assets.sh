@@ -20,6 +20,9 @@ files=(
   profile/pin-plugin-jm-server-dark.svg
   profile/pin-JMComic-APK.svg
   profile/pin-JMComic-APK-dark.svg
+  profile/star-history.svg
+  profile/star-history-dark.svg
+  profile/star-history.json
 )
 
 for file in "${files[@]}"; do

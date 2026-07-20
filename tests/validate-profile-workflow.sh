@@ -5,15 +5,17 @@ workflow=${WORKFLOW_FILE:-.github/workflows/main.yml}
 
 ruby -e 'require "yaml"; YAML.parse_file(ARGV.fetch(0))' "$workflow"
 test "$(grep -c 'target_branch: output' "$workflow")" -eq 1
-test "$(grep -c 'if-no-files-found: error' "$workflow")" -eq 3
+test "$(grep -c 'if-no-files-found: error' "$workflow")" -eq 4
 if grep -qE '^ +git push$' "$workflow"; then
   echo "workflow must not push generated files directly" >&2
   exit 1
 fi
-grep -q 'needs: \[generate-snake, generate-main-stats, generate-pins\]' "$workflow"
+grep -q 'needs: \[generate-snake, generate-main-stats, generate-pins, generate-star-history\]' "$workflow"
 grep -q 'name: snake-assets' "$workflow"
 grep -q 'pattern: main-\*' "$workflow"
 grep -q 'pattern: pin-\*' "$workflow"
+grep -q 'name: star-history-assets' "$workflow"
+grep -q 'origin/output:profile/star-history.json' "$workflow"
 grep -q 'path: dist/profile' "$workflow"
 grep -q 'path: dist$' "$workflow"
 grep -q 'group: profile-assets-' "$workflow"

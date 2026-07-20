@@ -17,6 +17,8 @@ expected=(
   profile/pin-plugin-jm-server-dark.svg
   profile/pin-JMComic-APK.svg
   profile/pin-JMComic-APK-dark.svg
+  profile/star-history.svg
+  profile/star-history-dark.svg
 )
 
 for file in "${expected[@]}"; do
@@ -25,6 +27,11 @@ for file in "${expected[@]}"; do
     exit 1
   fi
 done
+
+if [[ ! -s "$root/profile/star-history.json" ]]; then
+  echo "missing or empty output asset: profile/star-history.json" >&2
+  exit 1
+fi
 
 actual_count=$(find "$root" -type f -name '*.svg' | wc -l | tr -d ' ')
 if [[ "$actual_count" -ne "${#expected[@]}" ]]; then
