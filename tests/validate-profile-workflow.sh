@@ -15,7 +15,10 @@ grep -q 'name: snake-assets' "$workflow"
 grep -q 'pattern: main-\*' "$workflow"
 grep -q 'pattern: pin-\*' "$workflow"
 grep -q 'name: star-history-assets' "$workflow"
-grep -q 'origin/output:profile/star-history.json' "$workflow"
+grep -q 'repository: star-history/star-history' "$workflow"
+grep -q 'ref: bcddc9d532b10bac7e0187a741288bf9cab17616' "$workflow"
+grep -q 'star-history-token-test-repo.patch' "$workflow"
+grep -q 'http://127.0.0.1:8080/svg' "$workflow"
 grep -q 'path: dist/profile' "$workflow"
 grep -q 'path: dist$' "$workflow"
 grep -q 'group: profile-assets-' "$workflow"
@@ -24,3 +27,4 @@ grep -q 'bash tests/validate-output-assets.sh dist' "$workflow"
 test "$(grep -c 'output/profile/' README.md)" -eq 6
 test "$(grep -c 'hect0x7/output/github-contribution-grid-snake' README.md)" -eq 3
 test -z "$(find profile -maxdepth 1 -name '*.svg' -print -quit 2>/dev/null)"
+test ! -e .github/scripts/generate_star_history.py

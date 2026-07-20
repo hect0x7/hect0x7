@@ -1,0 +1,23 @@
+diff --git a/backend/token.ts b/backend/token.ts
+index ac9c6f8..7a1079c 100644
+--- a/backend/token.ts
++++ b/backend/token.ts
+@@ -33,9 +33,10 @@ export const initTokenFromEnv = async () => {
+   // Call GitHub API to check token usability
+   for (const token of tokenList) {
+     try {
+-      await api.getRepoStargazersCount("star-history/star-history", token);
++      const validationRepo = process.env.TOKEN_TEST_REPO || "star-history/star-history";
++      await api.getRepoStargazersCount(validationRepo, token);
+       savedTokens.push(token);
+     } catch (error) {
+-      logger.error(`Token ${token.slice(0, 8)}...${token.slice(-4)} is unusable`, error);
++      logger.error("Configured token is unusable", error);
+     }
+   }
+@@ -52,4 +53,4 @@ export const markTokenExhausted = (token: string) => {
+ export const markTokenExhausted = (token: string) => {
+   exhaustedUntil.set(token, Date.now() + COOLDOWN_MS);
+-  logger.warn(`Token ${token.slice(0, 8)}... rate-limited, cooling down for ${COOLDOWN_MS / 60000}m`);
++  logger.warn(`Token rate-limited, cooling down for ${COOLDOWN_MS / 60000}m`);
+ };

@@ -8,10 +8,11 @@ on:
   # allows to manually run the job at any time
   workflow_dispatch:
 
-  # run on every push on the master branch
+  # run on every push on the master branch and the temporary test branch
   push:
     branches:
     - master
+    - star-history
 
 concurrency:
   group: profile-assets-${{ github.repository }}
@@ -93,37 +94,85 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout generator
+      - name: Checkout workflow repository
+        uses: actions/checkout@v4
+
+      - name: Checkout official Star History
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          repository: star-history/star-history
+          ref: bcddc9d532b10bac7e0187a741288bf9cab17616
+          path: star-history-upstream
 
-      - name: Restore cached star history
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install official Star History backend
+        run: |
+          git -C star-history-upstream apply "$GITHUB_WORKSPACE/.github/patches/star-history-token-test-repo.patch"
+          corepack enable
+          corepack prepare pnpm@9 --activate
+          pnpm --dir star-history-upstream install --frozen-lockfile
+          pnpm --dir star-history-upstream/backend install --frozen-lockfile
+
+      - name: Generate official Star History SVGs
+        env:
+          STAR_HISTORY_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}
+          TOKEN_TEST_REPO: hect0x7/JMComic-Crawler-Python
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p star-history
-          if git fetch origin output:refs/remotes/origin/output --depth=1 && \
-             git show origin/output:profile/star-history.json > star-history/star-history.json 2>/dev/null; then
-            echo "Restored star history cache from output branch"
-          else
-            printf '{"version":1,"repositories":{}}\n' > star-history/star-history.json
-          fi
+          token_file="$RUNNER_TEMP/star-history-token.env"
+          server_log="$RUNNER_TEMP/star-history-server.log"
+          printf '%s\n' "$STAR_HISTORY_TOKEN" > "$token_file"
+          chmod 600 "$token_file"
 
-      - name: Generate star history
-        env:
-          GITHUB_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}
-        run: |
-          python .github/scripts/generate_star_history.py \
-            --config .github/star-history-repositories.json \
-            --cache star-history/star-history.json \
-            --output star-history/star-history.svg \
-            --dark-output star-history/star-history-dark.svg
+          ENVPATH="$token_file" TOKEN_TEST_REPO="$TOKEN_TEST_REPO" \
+            pnpm --dir star-history-upstream/backend dev > "$server_log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8080/healthz >/dev/null; then
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              cat "$server_log"
+              exit 1
+            fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8080/healthz >/dev/null || {
+            cat "$server_log"
+            exit 1
+          }
+
+          repositories=$(jq -r 'join(",")' .github/star-history-repositories.json)
+          curl --fail --silent --show-error --location --get \
+            --data-urlencode "repos=$repositories" \
+            --data-urlencode "type=Date" \
+            --data-urlencode "legend=top-left" \
+            http://127.0.0.1:8080/svg \
+            --output star-history/star-history.svg
+          curl --fail --silent --show-error --location --get \
+            --data-urlencode "repos=$repositories" \
+            --data-urlencode "type=Date" \
+            --data-urlencode "theme=dark" \
+            --data-urlencode "legend=top-left" \
+            http://127.0.0.1:8080/svg \
+            --output star-history/star-history-dark.svg
+
+          grep -q '<svg' star-history/star-history.svg
+          grep -q '<svg' star-history/star-history-dark.svg
 
       - name: Upload star history artifact
         uses: actions/upload-artifact@v4
         with:
           name: star-history-assets
-          path: star-history/star-history*
+          path: star-history/*.svg
           if-no-files-found: error
 
   # Job 5: Deploy

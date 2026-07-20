@@ -28,11 +28,6 @@ for file in "${expected[@]}"; do
   fi
 done
 
-if [[ ! -s "$root/profile/star-history.json" ]]; then
-  echo "missing or empty output asset: profile/star-history.json" >&2
-  exit 1
-fi
-
 actual_count=$(find "$root" -type f -name '*.svg' | wc -l | tr -d ' ')
 if [[ "$actual_count" -ne "${#expected[@]}" ]]; then
   echo "expected ${#expected[@]} SVG assets, found $actual_count" >&2
