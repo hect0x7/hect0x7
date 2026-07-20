@@ -1,0 +1,65 @@
+name: Generate Used By Cards
+
+on:
+  schedule:
+    - cron: "30 0 * * *"
+
+  workflow_dispatch:
+
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/used-by-repositories.json'
+      - '.github/workflows/used_by.yml'
+      - 'scripts/generate_used_by.py'
+      - 'scripts/validate_used_by_output.py'
+      - 'tests/test_generate_used_by.py'
+      - '.github/output-README.md'
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-used-by-cards
+  cancel-in-progress: true
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run generator tests
+        run: python -m unittest discover -s tests -p 'test_generate_used_by.py' -v
+
+      - name: Generate localized assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/generate_used_by.py --config .github/used-by-repositories.json --output dist --readme-dir generated-readmes
+
+      - name: Include localized branch readmes
+        run: cp generated-readmes/README*.md dist/
+
+      - name: Validate generated assets
+        run: python scripts/validate_used_by_output.py --config .github/used-by-repositories.json --output dist --readme-dir dist
+
+      - name: Publish orphan branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          cd dist
+          git init
+          git checkout --orphan used-by
+          git config user.name "hect0x7"
+          git config user.email "93357912+hect0x7@users.noreply.github.com"
+          git add .
+          git commit -m "chore: update localized used by cards"
+          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:used-by

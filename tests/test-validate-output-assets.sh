@@ -29,7 +29,16 @@ for file in "${files[@]}"; do
   printf 'svg' > "$fixture/$file"
 done
 
+cp "$repo_root/.github/output-README.md" "$fixture/README.md"
+
 bash "$repo_root/tests/validate-output-assets.sh" "$fixture"
+
+rm "$fixture/README.md"
+if bash "$repo_root/tests/validate-output-assets.sh" "$fixture" >/dev/null 2>&1; then
+  echo "validator accepted a missing README" >&2
+  exit 1
+fi
+cp "$repo_root/.github/output-README.md" "$fixture/README.md"
 
 rm "$fixture/profile/stats-light.svg"
 if bash "$repo_root/tests/validate-output-assets.sh" "$fixture" >/dev/null 2>&1; then

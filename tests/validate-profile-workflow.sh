@@ -24,6 +24,7 @@ grep -q 'path: dist$' "$workflow"
 grep -q 'group: profile-assets-' "$workflow"
 grep -q 'cancel-in-progress: true' "$workflow"
 grep -q 'bash tests/validate-output-assets.sh dist' "$workflow"
+grep -q 'cp .github/output-README.md dist/README.md' "$workflow"
 test "$(grep -c 'output/profile/' README.md)" -eq 6
 test "$(grep -c 'hect0x7/output/github-contribution-grid-snake' README.md)" -eq 3
 test -z "$(find profile -maxdepth 1 -name '*.svg' -print -quit 2>/dev/null)"

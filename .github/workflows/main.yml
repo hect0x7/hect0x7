@@ -236,6 +236,9 @@ jobs:
           name: star-history-assets
           path: dist/profile
 
+      - name: Include output branch README
+        run: cp .github/output-README.md dist/README.md
+
       - name: Validate output asset manifest
         run: bash tests/validate-output-assets.sh dist
 

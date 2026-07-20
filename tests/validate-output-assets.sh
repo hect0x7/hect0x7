@@ -28,6 +28,14 @@ for file in "${expected[@]}"; do
   fi
 done
 
+if [[ ! -s "$root/README.md" ]]; then
+  echo "missing or empty output README" >&2
+  exit 1
+fi
+
+grep -q './profile/star-history.svg' "$root/README.md"
+grep -q 'used-by/showcase/zh-CN-light.svg' "$root/README.md"
+
 actual_count=$(find "$root" -type f -name '*.svg' | wc -l | tr -d ' ')
 if [[ "$actual_count" -ne "${#expected[@]}" ]]; then
   echo "expected ${#expected[@]} SVG assets, found $actual_count" >&2
