@@ -12,6 +12,7 @@ on:
   push:
     branches:
     - master
+    - star-history
 
 concurrency:
   group: profile-assets-${{ github.repository }}
@@ -110,7 +111,7 @@ jobs:
 
       - name: Install official Star History backend
         run: |
-          git -C star-history-upstream apply "$GITHUB_WORKSPACE/.github/patches/star-history-token-test-repo.patch"
+          git -C star-history-upstream apply --unidiff-zero "$GITHUB_WORKSPACE/.github/patches/star-history-token-test-repo.patch"
           corepack enable
           corepack prepare pnpm@9 --activate
           pnpm --dir star-history-upstream install --frozen-lockfile
@@ -186,6 +187,12 @@ jobs:
 
           grep -q '<svg' star-history/star-history.svg
           grep -q '<svg' star-history/star-history-dark.svg
+          grep -q 'Star History' star-history/star-history.svg
+          grep -q 'GitHub Stars' star-history/star-history.svg
+          ! grep -q 'star-history.com' star-history/star-history.svg
+          ! grep -q 'star-history.com' star-history/star-history-dark.svg
+          ! grep -Eq '<image[^>]+width="20"[^>]+height="20"' star-history/star-history.svg
+          grep -Eq '<image[^>]+width="22"[^>]+height="22"' star-history/star-history.svg
 
       - name: Upload star history artifact
         uses: actions/upload-artifact@v4

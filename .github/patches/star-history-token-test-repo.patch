@@ -1,25 +1,26 @@
 diff --git a/backend/token.ts b/backend/token.ts
-index ac9c6f8..e3fd84f 100644
+index 160e0c3..904336f 100644
 --- a/backend/token.ts
 +++ b/backend/token.ts
-@@ -32,10 +32,11 @@ export const initTokenFromEnv = async () => {
+@@ -32 +32 @@ export const initTokenFromEnv = async () => {
 -  const tokenList = envTokenString.split(/\r?\n/);
 +  const tokenList = envTokenString.split(/\r?\n/).map((token) => token.trim()).filter(Boolean);
-   // Call GitHub API to check token usability
-   for (const token of tokenList) {
-     try {
+@@ -36 +36,2 @@ export const initTokenFromEnv = async () => {
 -      await api.getRepoStargazersCount("star-history/star-history", token);
 +      const validationRepo = process.env.TOKEN_TEST_REPO || "star-history/star-history";
 +      await api.getRepoStargazers(validationRepo, token, 1);
-       savedTokens.push(token);
-     } catch (error) {
+@@ -39 +40 @@ export const initTokenFromEnv = async () => {
 -      logger.error(`Token ${token.slice(0, 8)}...${token.slice(-4)} is unusable`, error);
 +      logger.error("Configured token is unusable", error);
-     }
-   }
-@@ -52,4 +53,4 @@ export const markTokenExhausted = (token: string) => {
- export const markTokenExhausted = (token: string) => {
-   exhaustedUntil.set(token, Date.now() + COOLDOWN_MS);
+@@ -54 +55 @@ export const markTokenExhausted = (token: string) => {
 -  logger.warn(`Token ${token.slice(0, 8)}... rate-limited, cooling down for ${COOLDOWN_MS / 60000}m`);
 +  logger.warn(`Token rate-limited, cooling down for ${COOLDOWN_MS / 60000}m`);
- };
+diff --git a/shared/packages/xy-chart.tsx b/shared/packages/xy-chart.tsx
+index e0480f1..207f534 100644
+--- a/shared/packages/xy-chart.tsx
++++ b/shared/packages/xy-chart.tsx
+@@ -13 +12,0 @@ import drawLegend from "./utils/drawLegend"
+-import { drawWatermark } from "./utils/drawWatermark"
+@@ -220,2 +218,0 @@ const XYChart = (
+-    drawWatermark(svgChart, chartWidth, chartHeight);
+-
