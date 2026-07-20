@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root=${1:-dist}
+expected=(
+  github-contribution-grid-snake.svg
+  github-contribution-grid-snake-dark.svg
+  profile/stats-light.svg
+  profile/stats-dark.svg
+  profile/top-langs-light.svg
+  profile/top-langs-dark.svg
+  profile/pin-JMComic-Crawler-Python.svg
+  profile/pin-JMComic-Crawler-Python-dark.svg
+  profile/pin-jmcomic-ai.svg
+  profile/pin-jmcomic-ai-dark.svg
+  profile/pin-plugin-jm-server.svg
+  profile/pin-plugin-jm-server-dark.svg
+  profile/pin-JMComic-APK.svg
+  profile/pin-JMComic-APK-dark.svg
+)
+
+for file in "${expected[@]}"; do
+  if [[ ! -s "$root/$file" ]]; then
+    echo "missing or empty output asset: $file" >&2
+    exit 1
+  fi
+done
+
+actual_count=$(find "$root" -type f -name '*.svg' | wc -l | tr -d ' ')
+if [[ "$actual_count" -ne "${#expected[@]}" ]]; then
+  echo "expected ${#expected[@]} SVG assets, found $actual_count" >&2
+  exit 1
+fi

@@ -4,15 +4,15 @@
 
 <a href="https://github.com/hect0x7/hect0x7">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="profile/stats-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="profile/stats-light.svg">
-    <img alt="hect0x7's GitHub stats" src="profile/stats-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/hect0x7/hect0x7/output/profile/stats-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/hect0x7/hect0x7/output/profile/stats-light.svg">
+    <img alt="hect0x7's GitHub stats" src="https://raw.githubusercontent.com/hect0x7/hect0x7/output/profile/stats-light.svg">
   </picture>
   
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="profile/top-langs-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="profile/top-langs-light.svg">
-    <img alt="hect0x7's GitHub Top Lang" src="profile/top-langs-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/hect0x7/hect0x7/output/profile/top-langs-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/hect0x7/hect0x7/output/profile/top-langs-light.svg">
+    <img alt="hect0x7's GitHub Top Lang" src="https://raw.githubusercontent.com/hect0x7/hect0x7/output/profile/top-langs-light.svg">
   </picture>
 </a>
 
