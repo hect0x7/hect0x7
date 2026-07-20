@@ -151,19 +151,39 @@ jobs:
           }
 
           repositories=$(jq -r 'join(",")' .github/star-history-repositories.json)
-          curl --fail --silent --show-error --location --get \
-            --data-urlencode "repos=$repositories" \
-            --data-urlencode "type=Date" \
-            --data-urlencode "legend=top-left" \
-            http://127.0.0.1:8080/svg \
-            --output star-history/star-history.svg
-          curl --fail --silent --show-error --location --get \
-            --data-urlencode "repos=$repositories" \
-            --data-urlencode "type=Date" \
-            --data-urlencode "theme=dark" \
-            --data-urlencode "legend=top-left" \
-            http://127.0.0.1:8080/svg \
-            --output star-history/star-history-dark.svg
+
+          generate_chart() {
+            local theme=$1
+            local output=$2
+            local request_args=(
+              --silent
+              --show-error
+              --location
+              --get
+              --data-urlencode "repos=$repositories"
+              --data-urlencode "type=Date"
+              --data-urlencode "legend=top-left"
+            )
+            if [[ -n "$theme" ]]; then
+              request_args+=(--data-urlencode "theme=$theme")
+            fi
+
+            local status
+            status=$(curl "${request_args[@]}" \
+              --write-out '%{http_code}' \
+              --output "$output" \
+              http://127.0.0.1:8080/svg)
+            if [[ "$status" != "200" ]]; then
+              echo "Official Star History API returned HTTP $status"
+              cat "$output"
+              echo
+              tail -n 80 "$server_log"
+              exit 1
+            fi
+          }
+
+          generate_chart '' star-history/star-history.svg
+          generate_chart 'dark' star-history/star-history-dark.svg
 
           grep -q '<svg' star-history/star-history.svg
           grep -q '<svg' star-history/star-history-dark.svg

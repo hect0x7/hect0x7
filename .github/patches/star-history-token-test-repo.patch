@@ -1,14 +1,16 @@
 diff --git a/backend/token.ts b/backend/token.ts
-index ac9c6f8..7a1079c 100644
+index ac9c6f8..e3fd84f 100644
 --- a/backend/token.ts
 +++ b/backend/token.ts
-@@ -33,9 +33,10 @@ export const initTokenFromEnv = async () => {
+@@ -32,10 +32,11 @@ export const initTokenFromEnv = async () => {
+-  const tokenList = envTokenString.split(/\r?\n/);
++  const tokenList = envTokenString.split(/\r?\n/).map((token) => token.trim()).filter(Boolean);
    // Call GitHub API to check token usability
    for (const token of tokenList) {
      try {
 -      await api.getRepoStargazersCount("star-history/star-history", token);
 +      const validationRepo = process.env.TOKEN_TEST_REPO || "star-history/star-history";
-+      await api.getRepoStargazersCount(validationRepo, token);
++      await api.getRepoStargazers(validationRepo, token, 1);
        savedTokens.push(token);
      } catch (error) {
 -      logger.error(`Token ${token.slice(0, 8)}...${token.slice(-4)} is unusable`, error);
