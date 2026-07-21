@@ -200,7 +200,7 @@ jobs:
             grep -Eq '<image[^>]+width="22"[^>]+height="22"' "$chart"
           done
 
-          for repository in hect0x7/JMComic-APK hect0x7/jmcomic-ai hect0x7/plugin-jm-server; do
+          for repository in hect0x7/JMComic-APK hect0x7/jmcomic-ai hect0x7/jm-view-server; do
             ! grep -q "$repository" star-history/star-history-JMComic-Crawler-Python.svg
             ! grep -q "$repository" star-history/star-history-JMComic-Crawler-Python-dark.svg
             grep -q "$repository" star-history/star-history.svg

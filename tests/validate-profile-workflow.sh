@@ -39,6 +39,7 @@ test "$(jq -r '.single | length' .github/star-history-repositories.json)" -eq 1
 test "$(jq -r '.ecosystem | length' .github/star-history-repositories.json)" -eq 4
 test "$(jq -r '.single[0]' .github/star-history-repositories.json)" = 'hect0x7/JMComic-Crawler-Python'
 test "$(jq -r '.ecosystem | unique | length' .github/star-history-repositories.json)" -eq 4
+test "$(jq -r '.ecosystem | join(",")' .github/star-history-repositories.json)" = 'hect0x7/JMComic-Crawler-Python,hect0x7/JMComic-APK,hect0x7/jmcomic-ai,hect0x7/jm-view-server'
 grep -q './profile/star-history-JMComic-Crawler-Python.svg' .github/output-README.md
 grep -q './profile/star-history-JMComic-Crawler-Python-dark.svg' .github/output-README.md
 grep -q './profile/star-history.svg' .github/output-README.md
