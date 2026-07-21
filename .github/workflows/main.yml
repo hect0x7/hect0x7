@@ -118,7 +118,7 @@ jobs:
 
       - name: Generate official Star History SVGs
         env:
-          STAR_HISTORY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STAR_HISTORY_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}
           TOKEN_TEST_REPO: hect0x7/JMComic-Crawler-Python
         shell: bash
         run: |

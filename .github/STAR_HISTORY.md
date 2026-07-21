@@ -4,7 +4,9 @@ This workflow runs the official `star-history/star-history` backend inside GitHu
 
 ## Setup
 
-No additional secret is required. The workflow uses its repository-scoped `GITHUB_TOKEN` to read public repository metadata. Run the `generate animation` workflow once; later runs regenerate the official charts and publish them with the other profile cards.
+1. Create a fine-grained GitHub token that can read metadata for every repository in the `single` and `ecosystem` groups in `.github/star-history-repositories.json`.
+2. Add it to this repository as an Actions secret named `STAR_HISTORY_TOKEN`.
+3. Run the `generate animation` workflow once. Later runs regenerate the official charts and publish them with the other profile cards.
 
 The workflow pins the upstream project to commit `bcddc9d532b10bac7e0187a741288bf9cab17616`. A small compatibility patch changes the backend's hard-coded token validation repository to `hect0x7/JMComic-Crawler-Python`; chart data sampling and SVG rendering remain upstream code.
 

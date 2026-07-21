@@ -20,9 +20,9 @@ grep -q 'repository: star-history/star-history' "$workflow"
 grep -q 'ref: bcddc9d532b10bac7e0187a741288bf9cab17616' "$workflow"
 grep -q 'star-history-token-test-repo.patch' "$workflow"
 grep -q 'http://127.0.0.1:8080/svg' "$workflow"
-grep -Fq 'STAR_HISTORY_TOKEN: ${{ secrets.GITHUB_TOKEN }}' "$workflow"
-if grep -q 'secrets.STAR_HISTORY_TOKEN' "$workflow"; then
-  echo "workflow must use the repository token for public Star History data" >&2
+grep -Fq 'STAR_HISTORY_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}' "$workflow"
+if grep -Fq 'STAR_HISTORY_TOKEN: ${{ secrets.GITHUB_TOKEN }}' "$workflow"; then
+  echo "workflow must use the cross-repository Star History token" >&2
   exit 1
 fi
 grep -q 'jq -r '\''.single | join(",")'\'' .github/star-history-repositories.json' "$workflow"
