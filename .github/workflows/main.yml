@@ -244,6 +244,11 @@ jobs:
           path: dist/profile
           merge-multiple: true
 
+      - name: Add legacy jm view card aliases
+        run: |
+          cp dist/profile/pin-jm-view-server.svg dist/profile/pin-plugin-jm-server.svg
+          cp dist/profile/pin-jm-view-server-dark.svg dist/profile/pin-plugin-jm-server-dark.svg
+
       - name: Download star history artifact
         uses: actions/download-artifact@v4
         with:

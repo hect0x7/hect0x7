@@ -32,6 +32,8 @@ grep -Fq "generate_chart 'dark' star-history/star-history-JMComic-Crawler-Python
 grep -Fq "generate_chart '' star-history/star-history.svg" "$workflow"
 grep -Fq "generate_chart 'dark' star-history/star-history-dark.svg" "$workflow"
 grep -q 'path: dist/profile' "$workflow"
+grep -Fq 'cp dist/profile/pin-jm-view-server.svg dist/profile/pin-plugin-jm-server.svg' "$workflow"
+grep -Fq 'cp dist/profile/pin-jm-view-server-dark.svg dist/profile/pin-plugin-jm-server-dark.svg' "$workflow"
 grep -q 'path: dist$' "$workflow"
 grep -q 'group: profile-assets-' "$workflow"
 grep -q 'cancel-in-progress: true' "$workflow"

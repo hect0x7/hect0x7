@@ -15,6 +15,8 @@ expected=(
   profile/pin-jmcomic-ai-dark.svg
   profile/pin-jm-view-server.svg
   profile/pin-jm-view-server-dark.svg
+  profile/pin-plugin-jm-server.svg
+  profile/pin-plugin-jm-server-dark.svg
   profile/pin-JMComic-APK.svg
   profile/pin-JMComic-APK-dark.svg
   profile/star-history.svg
@@ -29,6 +31,15 @@ for file in "${expected[@]}"; do
     exit 1
   fi
 done
+
+cmp -s "$root/profile/pin-jm-view-server.svg" "$root/profile/pin-plugin-jm-server.svg" || {
+  echo "legacy light jm view card differs from canonical asset" >&2
+  exit 1
+}
+cmp -s "$root/profile/pin-jm-view-server-dark.svg" "$root/profile/pin-plugin-jm-server-dark.svg" || {
+  echo "legacy dark jm view card differs from canonical asset" >&2
+  exit 1
+}
 
 if [[ ! -s "$root/README.md" ]]; then
   echo "missing or empty output README" >&2

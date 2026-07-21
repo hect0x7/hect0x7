@@ -18,6 +18,8 @@ files=(
   profile/pin-jmcomic-ai-dark.svg
   profile/pin-jm-view-server.svg
   profile/pin-jm-view-server-dark.svg
+  profile/pin-plugin-jm-server.svg
+  profile/pin-plugin-jm-server-dark.svg
   profile/pin-JMComic-APK.svg
   profile/pin-JMComic-APK-dark.svg
   profile/star-history.svg
