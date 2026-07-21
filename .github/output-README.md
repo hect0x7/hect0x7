@@ -16,9 +16,18 @@ This branch contains assets generated automatically by GitHub Actions. Source co
 
 ## Star History
 
+### JMComic-Crawler-Python
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./profile/star-history-JMComic-Crawler-Python-dark.svg">
+  <img width="100%" alt="JMComic-Crawler-Python Star History" src="./profile/star-history-JMComic-Crawler-Python.svg">
+</picture>
+
+### JMComic Ecosystem
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./profile/star-history-dark.svg">
-  <img width="100%" alt="Star History" src="./profile/star-history.svg">
+  <img width="100%" alt="JMComic Ecosystem Star History" src="./profile/star-history.svg">
 </picture>
 
 ## Repository Cards

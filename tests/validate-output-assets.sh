@@ -19,6 +19,8 @@ expected=(
   profile/pin-JMComic-APK-dark.svg
   profile/star-history.svg
   profile/star-history-dark.svg
+  profile/star-history-JMComic-Crawler-Python.svg
+  profile/star-history-JMComic-Crawler-Python-dark.svg
 )
 
 for file in "${expected[@]}"; do
@@ -34,6 +36,7 @@ if [[ ! -s "$root/README.md" ]]; then
 fi
 
 grep -q './profile/star-history.svg' "$root/README.md"
+grep -q './profile/star-history-JMComic-Crawler-Python.svg' "$root/README.md"
 grep -q 'used-by/showcase/zh-CN-light.svg' "$root/README.md"
 
 actual_count=$(find "$root" -type f -name '*.svg' | wc -l | tr -d ' ')

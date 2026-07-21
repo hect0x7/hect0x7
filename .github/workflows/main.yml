@@ -149,7 +149,8 @@ jobs:
             exit 1
           }
 
-          repositories=$(jq -r 'join(",")' .github/star-history-repositories.json)
+          single_repositories=$(jq -r '.single | join(",")' .github/star-history-repositories.json)
+          ecosystem_repositories=$(jq -r '.ecosystem | join(",")' .github/star-history-repositories.json)
 
           generate_chart() {
             local theme=$1
@@ -181,21 +182,30 @@ jobs:
             fi
           }
 
+          repositories=$single_repositories
+          generate_chart '' star-history/star-history-JMComic-Crawler-Python.svg
+          generate_chart 'dark' star-history/star-history-JMComic-Crawler-Python-dark.svg
+
+          repositories=$ecosystem_repositories
           generate_chart '' star-history/star-history.svg
           generate_chart 'dark' star-history/star-history-dark.svg
 
-          grep -q '<svg' star-history/star-history.svg
-          grep -q '<svg' star-history/star-history-dark.svg
-          grep -q 'Star History' star-history/star-history.svg
-          grep -q 'GitHub Stars' star-history/star-history.svg
-          grep -q 'hect0x7/JMComic-Crawler-Python' star-history/star-history.svg
-          grep -q 'hect0x7/JMComic-APK' star-history/star-history.svg
-          grep -q 'hect0x7/JMComic-Crawler-Python' star-history/star-history-dark.svg
-          grep -q 'hect0x7/JMComic-APK' star-history/star-history-dark.svg
-          ! grep -q 'star-history.com' star-history/star-history.svg
-          ! grep -q 'star-history.com' star-history/star-history-dark.svg
-          ! grep -Eq '<image[^>]+width="20"[^>]+height="20"' star-history/star-history.svg
-          grep -Eq '<image[^>]+width="22"[^>]+height="22"' star-history/star-history.svg
+          for chart in star-history/*.svg; do
+            grep -q '<svg' "$chart"
+            grep -q 'Star History' "$chart"
+            grep -q 'GitHub Stars' "$chart"
+            grep -q 'hect0x7/JMComic-Crawler-Python' "$chart"
+            ! grep -q 'star-history.com' "$chart"
+            ! grep -Eq '<image[^>]+width="20"[^>]+height="20"' "$chart"
+            grep -Eq '<image[^>]+width="22"[^>]+height="22"' "$chart"
+          done
+
+          for repository in hect0x7/JMComic-APK hect0x7/jmcomic-ai hect0x7/plugin-jm-server; do
+            ! grep -q "$repository" star-history/star-history-JMComic-Crawler-Python.svg
+            ! grep -q "$repository" star-history/star-history-JMComic-Crawler-Python-dark.svg
+            grep -q "$repository" star-history/star-history.svg
+            grep -q "$repository" star-history/star-history-dark.svg
+          done
 
       - name: Upload star history artifact
         uses: actions/upload-artifact@v4
