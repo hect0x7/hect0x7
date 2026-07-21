@@ -35,7 +35,7 @@ This branch contains assets generated automatically by GitHub Actions. Source co
 | | |
 |:---:|:---:|
 | <picture><source media="(prefers-color-scheme: dark)" srcset="./profile/pin-JMComic-Crawler-Python-dark.svg"><img alt="JMComic-Crawler-Python" src="./profile/pin-JMComic-Crawler-Python.svg"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="./profile/pin-jmcomic-ai-dark.svg"><img alt="jmcomic-ai" src="./profile/pin-jmcomic-ai.svg"></picture> |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="./profile/pin-plugin-jm-server-dark.svg"><img alt="plugin-jm-server" src="./profile/pin-plugin-jm-server.svg"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="./profile/pin-JMComic-APK-dark.svg"><img alt="JMComic-APK" src="./profile/pin-JMComic-APK.svg"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="./profile/pin-jm-view-server-dark.svg"><img alt="jm-view-server" src="./profile/pin-jm-view-server.svg"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="./profile/pin-JMComic-APK-dark.svg"><img alt="JMComic-APK" src="./profile/pin-JMComic-APK.svg"></picture> |
 
 ## Contribution Snake
 

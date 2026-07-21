@@ -69,7 +69,7 @@ jobs:
   generate-pins:
     strategy:
       matrix:
-        repo: [JMComic-Crawler-Python, jmcomic-ai, plugin-jm-server, JMComic-APK]
+        repo: [JMComic-Crawler-Python, jmcomic-ai, jm-view-server, JMComic-APK]
         theme: [light, dark]
     runs-on: ubuntu-latest
     steps:
@@ -118,7 +118,7 @@ jobs:
 
       - name: Generate official Star History SVGs
         env:
-          STAR_HISTORY_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}
+          STAR_HISTORY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TOKEN_TEST_REPO: hect0x7/JMComic-Crawler-Python
         shell: bash
         run: |

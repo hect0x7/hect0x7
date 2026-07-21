@@ -14,11 +14,17 @@ grep -q 'needs: \[generate-snake, generate-main-stats, generate-pins, generate-s
 grep -q 'name: snake-assets' "$workflow"
 grep -q 'pattern: main-\*' "$workflow"
 grep -q 'pattern: pin-\*' "$workflow"
+grep -Fq 'repo: [JMComic-Crawler-Python, jmcomic-ai, jm-view-server, JMComic-APK]' "$workflow"
 grep -q 'name: star-history-assets' "$workflow"
 grep -q 'repository: star-history/star-history' "$workflow"
 grep -q 'ref: bcddc9d532b10bac7e0187a741288bf9cab17616' "$workflow"
 grep -q 'star-history-token-test-repo.patch' "$workflow"
 grep -q 'http://127.0.0.1:8080/svg' "$workflow"
+grep -Fq 'STAR_HISTORY_TOKEN: ${{ secrets.GITHUB_TOKEN }}' "$workflow"
+if grep -q 'secrets.STAR_HISTORY_TOKEN' "$workflow"; then
+  echo "workflow must use the repository token for public Star History data" >&2
+  exit 1
+fi
 grep -q 'jq -r '\''.single | join(",")'\'' .github/star-history-repositories.json' "$workflow"
 grep -q 'jq -r '\''.ecosystem | join(",")'\'' .github/star-history-repositories.json' "$workflow"
 grep -Fq "generate_chart '' star-history/star-history-JMComic-Crawler-Python.svg" "$workflow"
@@ -44,3 +50,5 @@ grep -q './profile/star-history-JMComic-Crawler-Python.svg' .github/output-READM
 grep -q './profile/star-history-JMComic-Crawler-Python-dark.svg' .github/output-README.md
 grep -q './profile/star-history.svg' .github/output-README.md
 grep -q './profile/star-history-dark.svg' .github/output-README.md
+grep -q './profile/pin-jm-view-server.svg' .github/output-README.md
+grep -q './profile/pin-jm-view-server-dark.svg' .github/output-README.md
