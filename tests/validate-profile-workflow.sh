@@ -20,15 +20,15 @@ grep -q 'repository: star-history/star-history' "$workflow"
 grep -q 'ref: bcddc9d532b10bac7e0187a741288bf9cab17616' "$workflow"
 grep -q 'star-history-token-test-repo.patch' "$workflow"
 grep -q 'http://127.0.0.1:8080/svg' "$workflow"
-test "$(grep -Fc 'uses: stats-organization/github-readme-stats-action@v2' "$workflow")" -eq 2
-if grep -Fq 'uses: readme-tools/github-readme-stats-action@v1' "$workflow"; then
-  echo "workflow must use the maintained readme stats action" >&2
+test "$(grep -Fc 'uses: readme-tools/github-readme-stats-action@v1' "$workflow")" -eq 2
+if grep -Fq 'uses: stats-organization/github-readme-stats-action@v2' "$workflow"; then
+  echo "workflow must use the original readme stats action" >&2
   exit 1
 fi
 grep -Fq 'STAR_HISTORY_TOKEN: ${{ secrets.STAR_HISTORY_TOKEN }}' "$workflow"
-test "$(grep -Fc 'token: ${{ secrets.STAR_HISTORY_TOKEN }}' "$workflow")" -eq 2
-if grep -Fq 'token: ${{ secrets.GITHUB_TOKEN }}' "$workflow"; then
-  echo "readme stats cards must use the cross-repository token" >&2
+test "$(grep -Fc 'token: ${{ secrets.GITHUB_TOKEN }}' "$workflow")" -eq 2
+if grep -Fq 'token: ${{ secrets.STAR_HISTORY_TOKEN }}' "$workflow"; then
+  echo "readme stats cards must not use the Star History token" >&2
   exit 1
 fi
 if grep -Fq 'STAR_HISTORY_TOKEN: ${{ secrets.GITHUB_TOKEN }}' "$workflow"; then
