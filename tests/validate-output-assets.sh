@@ -34,7 +34,7 @@ for file in "${expected[@]}"; do
     echo "output asset is not an SVG: $file" >&2
     exit 1
   fi
-  if grep -Fq 'tiny.one/readme-stats' "$root/$file"; then
+  if grep -Fq 'Something went wrong!' "$root/$file"; then
     echo "readme stats generated an error card: $file" >&2
     exit 1
   fi

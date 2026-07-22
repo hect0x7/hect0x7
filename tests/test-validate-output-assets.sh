@@ -58,7 +58,7 @@ if bash "$repo_root/tests/validate-output-assets.sh" "$fixture" >/dev/null 2>&1;
 fi
 
 rm "$fixture/profile/unexpected.svg"
-printf '<svg>Something went wrong! file an issue at https://tiny.one/readme-stats</svg>' > "$fixture/profile/stats-light.svg"
+printf '<svg>Something went wrong! file an issue at https://tinyurl.com/github-stats</svg>' > "$fixture/profile/stats-light.svg"
 if bash "$repo_root/tests/validate-output-assets.sh" "$fixture" >/dev/null 2>&1; then
   echo "validator accepted a readme stats error card" >&2
   exit 1
