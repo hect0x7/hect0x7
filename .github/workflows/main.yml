@@ -47,7 +47,7 @@ jobs:
         theme: [light, dark]
     steps:
       - name: Generate ${{ matrix.type }} (${{ matrix.theme }})
-        uses: readme-tools/github-readme-stats-action@v1
+        uses: stats-organization/github-readme-stats-action@v2
         with:
           card: ${{ matrix.type }}
           # Logic:
@@ -56,7 +56,7 @@ jobs:
           options: >-
             username=${{ github.repository_owner }}&${{ matrix.type == 'stats' && 'show_icons=true' || 'layout=compact&langs_count=6&line_height=25' }}${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
           path: ${{ matrix.type }}-${{ matrix.theme == 'dark' && 'dark' || 'light' }}.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.STAR_HISTORY_TOKEN }}
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -74,12 +74,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate repo pin (${{ matrix.repo }}) (${{ matrix.theme }})
-        uses: readme-tools/github-readme-stats-action@v1
+        uses: stats-organization/github-readme-stats-action@v2
         with:
           card: pin
           options: username=${{ github.repository_owner }}&repo=${{ matrix.repo }}&show_owner=true${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
           path: pin-${{ matrix.repo }}${{ matrix.theme == 'dark' && '-dark' || '' }}.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.STAR_HISTORY_TOKEN }}
       
       - name: Upload pin artifact
         uses: actions/upload-artifact@v4

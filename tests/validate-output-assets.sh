@@ -30,6 +30,14 @@ for file in "${expected[@]}"; do
     echo "missing or empty output asset: $file" >&2
     exit 1
   fi
+  if ! grep -q '<svg' "$root/$file"; then
+    echo "output asset is not an SVG: $file" >&2
+    exit 1
+  fi
+  if grep -Fq 'tiny.one/readme-stats' "$root/$file"; then
+    echo "readme stats generated an error card: $file" >&2
+    exit 1
+  fi
 done
 
 cmp -s "$root/profile/pin-jm-view-server.svg" "$root/profile/pin-plugin-jm-server.svg" || {
