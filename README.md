@@ -19,6 +19,8 @@
 
 About me:
 
+- 💻 Skilled in **Full-Stack, AI, Databases, Networking, Reverse Engineering, Web Scraping, and Automation**
+
 - 🔭 I like doing sth that interests me in the open-source community whenever I'm free
 
 - ❤️ I love writing Python the most and pursuing excellent system design
