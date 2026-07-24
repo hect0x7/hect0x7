@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="140" viewBox="0 0 860 140" role="img" aria-label="使用 jmcomic 的项目">
+  <style>text { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans CJK SC','Noto Sans',sans-serif; }</style>
+  <rect x="4" y="4" width="852" height="132" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+  <rect x="22" y="24" width="5" height="92" rx="2.5" fill="#ff8500"/>
+  <text x="46" y="53" font-size="27" font-weight="700" fill="#24292f">使用 jmcomic 的项目</text>
+  <rect x="46" y="72" width="68" height="24" rx="5" fill="#fff1df"/>
+  <text x="57" y="89" font-size="12" font-weight="700" fill="#b84f00">自动生成</text>
+  <text x="126" y="89" font-size="10.5" fill="#57606a">根据 GitHub 公开数据自动整理，用于展示社区中的相关项目。</text>
+  <g transform="translate(594 30)"><rect width="110" height="76" rx="7" fill="#f6f8fa" stroke="#d0d7de"/><text x="12" y="27" font-size="11" fill="#57606a">公开依赖项目</text><text x="12" y="57" font-size="23" font-weight="700" fill="#24292f">109</text></g>
+  <g transform="translate(716 30)"><rect width="120" height="76" rx="7" fill="#fff7ed" stroke="#ffbf78"/><text x="12" y="27" font-size="11" fill="#b84f00">当前展示</text><text x="12" y="57" font-size="23" font-weight="700" fill="#ff8500">Top 9</text></g>
+</svg>

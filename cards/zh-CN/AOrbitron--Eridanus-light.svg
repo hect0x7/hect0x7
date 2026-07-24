@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="136" viewBox="0 0 280 136" role="img" aria-label="AOrbitron / Eridanus">
+  <style>
+    text { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans CJK SC','Noto Sans',sans-serif; }
+    .title { font-size:15px;font-weight:600;fill:#2f80ed; }
+    .description { font-size:12px;fill:#434d58; }
+    .metric-value { font-size:11px;font-weight:600;fill:#434d58; }
+    .updated { font-size:10px;fill:#6e7781;letter-spacing:.1px; }
+  </style>
+  <rect x="4" y="4" width="272" height="128" rx="10" fill="#fffefe" stroke="#e4e2e2"/>
+  <text x="14" y="29" class="title">AOrbitron / Eridanus</text>
+  <text x="14" y="50" class="description">基于 OneBot</text><text x="14" y="67" class="description">协议的多功能bot兼开发框架。以llm func…</text>
+  <line x1="14" y1="91" x2="266" y2="91" stroke="#e4e2e2"/>
+  <g transform="translate(14 105)">
+    <path data-icon="star" d="M8 .75l2.16 4.37 4.82.7-3.49 3.4.82 4.8L8 11.75l-4.31 2.27.82-4.8-3.49-3.4 4.82-.7L8 .75z" fill="#ff8500"/>
+    <text x="22" y="12" class="metric-value">196</text>
+  </g>
+  <g transform="translate(79 105)">
+    <g data-icon="fork" fill="none" stroke="#0969da" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="4" cy="3" r="2"/><circle cx="12" cy="3" r="2"/><circle cx="8" cy="13" r="2"/>
+      <path d="M4 5v1c0 2.2 1.8 4 4 4v1M12 5v1c0 2.2-1.8 4-4 4"/>
+    </g>
+    <text x="22" y="12" class="metric-value">36</text>
+  </g>
+  <g data-icon="activity" transform="translate(194 107)" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="6" cy="6" r="5"/>
+    <path d="M6 3v3l2 1.5"/>
+  </g>
+  <text x="266" y="117" text-anchor="end" class="updated">2026-07-21</text>
+</svg>
