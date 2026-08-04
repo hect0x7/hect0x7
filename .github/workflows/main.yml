@@ -47,7 +47,7 @@ jobs:
         theme: [light, dark]
     steps:
       - name: Generate ${{ matrix.type }} (${{ matrix.theme }})
-        uses: readme-tools/github-readme-stats-action@v1
+        uses: stats-organization/github-readme-stats-action@v2
         with:
           card: ${{ matrix.type }}
           # Logic:
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate repo pin (${{ matrix.repo }}) (${{ matrix.theme }})
-        uses: readme-tools/github-readme-stats-action@v1
+        uses: stats-organization/github-readme-stats-action@v2
         with:
           card: pin
           options: username=${{ github.repository_owner }}&repo=${{ matrix.repo }}&show_owner=true${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
