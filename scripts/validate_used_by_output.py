@@ -66,10 +66,22 @@ def validate_output(output, config, readme_dir):
         if manifest.get(key) != value:
             fail(f"invalid manifest field {key}")
     manifest_repositories = manifest.get("repositories")
-    if not isinstance(manifest_repositories, list) or {
-        item.get("slug") for item in manifest_repositories if isinstance(item, dict)
-    } != {item["slug"] for item in config["repositories"]}:
+    if not isinstance(manifest_repositories, list) or any(
+        not isinstance(item, dict) for item in manifest_repositories
+    ) or len(manifest_repositories) != REQUIRED_REPOSITORY_COUNT:
         fail("manifest repository list does not match configuration")
+    manifest_slugs = [item.get("slug") for item in manifest_repositories]
+    configured_slugs = [item["slug"] for item in config["repositories"]]
+    if len(set(manifest_slugs)) != REQUIRED_REPOSITORY_COUNT or set(manifest_slugs) != set(configured_slugs):
+        fail("manifest repository list does not match configuration")
+    if any(not isinstance(item.get("stars"), int) for item in manifest_repositories):
+        fail("manifest repository stars must be integers")
+    if any(not isinstance(item.get("forks"), int) for item in manifest_repositories):
+        fail("manifest repository forks must be integers")
+    if manifest.get("total_stars") != sum(item.get("stars", 0) for item in manifest_repositories):
+        fail("manifest total_stars does not match repository totals")
+    if manifest.get("total_forks") != sum(item.get("forks", 0) for item in manifest_repositories):
+        fail("manifest total_forks does not match repository totals")
     actual = {path.relative_to(output).as_posix() for path in output.rglob("*.svg")}
     if expected != actual:
         missing = sorted(expected - actual)

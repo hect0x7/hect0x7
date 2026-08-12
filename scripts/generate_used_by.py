@@ -27,6 +27,8 @@ COPY = {
         "heading": "使用 jmcomic 的项目",
         "public": "公开依赖项目",
         "showing": "当前展示",
+        "stars": "Star 总数",
+        "forks": "Fork 总数",
         "top": "Top {count}",
         "notice_label": "自动生成",
         "summary_notice": "根据 GitHub 公开数据自动整理，用于展示社区中的相关项目。",
@@ -35,6 +37,8 @@ COPY = {
         "heading": "Projects using jmcomic",
         "public": "Public dependents",
         "showing": "Showing",
+        "stars": "Total stars",
+        "forks": "Total forks",
         "top": "Top {count}",
         "notice_label": "Automated",
         "summary_notice": "Automatically organized from public GitHub data to showcase related projects in the community.",
@@ -43,6 +47,8 @@ COPY = {
         "heading": "jmcomic を使用しているプロジェクト",
         "public": "公開依存リポジトリ",
         "showing": "表示中",
+        "stars": "Star 合計",
+        "forks": "Fork 合計",
         "top": "上位 {count} 件",
         "notice_label": "自動生成",
         "summary_notice": "GitHub の公開データをもとに自動整理し、コミュニティの関連プロジェクトを紹介しています。",
@@ -51,6 +57,8 @@ COPY = {
         "heading": "jmcomic을 사용하는 프로젝트",
         "public": "공개 종속 저장소",
         "showing": "현재 표시",
+        "stars": "Star 합계",
+        "forks": "Fork 합계",
         "top": "상위 {count}개",
         "notice_label": "자동 생성",
         "summary_notice": "GitHub 공개 데이터를 바탕으로 자동 정리하여 커뮤니티의 관련 프로젝트를 소개합니다.",
@@ -61,14 +69,20 @@ SUMMARY_PALETTES = {
     "light": {
         "card": "#ffffff", "border": "#d8dee4", "accent": "#ff8500",
         "title": "#24292f", "notice_bg": "#fff1df", "notice_label": "#b84f00",
-        "text": "#57606a", "metric_bg": "#f6f8fa", "metric_border": "#d0d7de",
-        "metric_text": "#24292f", "top_bg": "#fff7ed", "top_border": "#ffbf78",
+        "text": "#57606a",
+        "public_bg": "#f5f0ff", "public_border": "#d8c4ff", "public_text": "#6639ba",
+        "top_bg": "#edfff4", "top_border": "#9be9b7", "top_text": "#168244",
+        "stars_bg": "#fff4e5", "stars_border": "#ffc46b", "stars_text": "#c45d00",
+        "forks_bg": "#edf6ff", "forks_border": "#9ecbff", "forks_text": "#0969da",
     },
     "dark": {
         "card": "#161b22", "border": "#30363d", "accent": "#ffb000",
         "title": "#f0f6fc", "notice_bg": "#3d2b00", "notice_label": "#ffb000",
-        "text": "#9da7b1", "metric_bg": "#21262d", "metric_border": "#30363d",
-        "metric_text": "#f0f6fc", "top_bg": "#292300", "top_border": "#806700",
+        "text": "#9da7b1",
+        "public_bg": "#2d2048", "public_border": "#6e40c9", "public_text": "#d2a8ff",
+        "top_bg": "#123621", "top_border": "#238636", "top_text": "#56d364",
+        "stars_bg": "#3d2b00", "stars_border": "#9e6a03", "stars_text": "#ffb000",
+        "forks_bg": "#102c4c", "forks_border": "#1f6feb", "forks_text": "#58a6ff",
     },
 }
 
@@ -218,7 +232,7 @@ def render_card(repository, locale, theme):
 </svg>'''
 
 
-def render_summary(public_dependents, shown_count, locale, theme):
+def render_summary(public_dependents, shown_count, total_stars, total_forks, locale, theme):
     colors = SUMMARY_PALETTES[theme]
     copy = COPY[locale]
     heading = escape(copy["heading"])
@@ -226,8 +240,12 @@ def render_summary(public_dependents, shown_count, locale, theme):
     notice = escape(copy["summary_notice"])
     public_label = escape(copy["public"])
     showing_label = escape(copy["showing"])
+    stars_label = escape(copy["stars"])
+    forks_label = escape(copy["forks"])
     public_value = str(public_dependents)
     showing_value = escape(copy["top"].format(count=shown_count))
+    stars_value = str(total_stars)
+    forks_value = str(total_forks)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="860" height="140" viewBox="0 0 860 140" role="img" aria-label="{heading}">
   <style>text {{ font-family:{font_family()}; }}</style>
   <rect x="4" y="4" width="852" height="132" rx="8" fill="{colors['card']}" stroke="{colors['border']}"/>
@@ -236,12 +254,16 @@ def render_summary(public_dependents, shown_count, locale, theme):
   <rect x="46" y="72" width="68" height="24" rx="5" fill="{colors['notice_bg']}"/>
   <text x="57" y="89" font-size="12" font-weight="700" fill="{colors['notice_label']}">{notice_label}</text>
   <text x="126" y="89" font-size="10.5" fill="{colors['text']}">{notice}</text>
-  <g transform="translate(594 30)"><rect width="110" height="76" rx="7" fill="{colors['metric_bg']}" stroke="{colors['metric_border']}"/><text x="12" y="27" font-size="11" fill="{colors['text']}">{public_label}</text><text x="12" y="57" font-size="23" font-weight="700" fill="{colors['metric_text']}">{public_value}</text></g>
-  <g transform="translate(716 30)"><rect width="120" height="76" rx="7" fill="{colors['top_bg']}" stroke="{colors['top_border']}"/><text x="12" y="27" font-size="11" fill="{colors['notice_label']}">{showing_label}</text><text x="12" y="57" font-size="23" font-weight="700" fill="{colors['accent']}">{showing_value}</text></g>
+  <g transform="translate(594 24)"><rect width="116" height="42" rx="7" fill="{colors['public_bg']}" stroke="{colors['public_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['public_text']}">{public_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['public_text']}">{public_value}</text></g>
+  <g transform="translate(720 24)"><rect width="116" height="42" rx="7" fill="{colors['top_bg']}" stroke="{colors['top_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['top_text']}">{showing_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['top_text']}">{showing_value}</text></g>
+  <g transform="translate(594 76)"><rect width="116" height="42" rx="7" fill="{colors['stars_bg']}" stroke="{colors['stars_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['stars_text']}">{stars_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['stars_text']}">{stars_value}</text></g>
+  <g transform="translate(720 76)"><rect width="116" height="42" rx="7" fill="{colors['forks_bg']}" stroke="{colors['forks_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['forks_text']}">{forks_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['forks_text']}">{forks_value}</text></g>
 </svg>'''
 
 
 def render_showcase(repositories, public_dependents, locale, theme):
+    total_stars = sum(repository["stargazers_count"] for repository in repositories)
+    total_forks = sum(repository["forks_count"] for repository in repositories)
     root = ET.Element(
         f"{{{SVG_NS}}}svg",
         {
@@ -252,7 +274,9 @@ def render_showcase(repositories, public_dependents, locale, theme):
             "aria-label": COPY[locale]["heading"],
         },
     )
-    summary = ET.fromstring(render_summary(public_dependents, len(repositories), locale, theme))
+    summary = ET.fromstring(
+        render_summary(public_dependents, len(repositories), total_stars, total_forks, locale, theme)
+    )
     summary.set("x", "0")
     summary.set("y", "0")
     root.append(summary)
@@ -293,6 +317,8 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
     readme_dir.mkdir(parents=True, exist_ok=True)
     repositories = sorted(repositories, key=lambda item: item["stargazers_count"], reverse=True)
+    total_stars = sum(repository["stargazers_count"] for repository in repositories)
+    total_forks = sum(repository["forks_count"] for repository in repositories)
     expected_files = []
     for locale in LOCALES:
         card_dir = output_dir / "cards" / locale
@@ -307,7 +333,10 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir):
         for theme in THEMES:
             relative = Path("summary") / f"{locale}-{theme}.svg"
             (output_dir / relative).write_text(
-                render_summary(public_dependents, len(repositories), locale, theme), encoding="utf-8"
+                render_summary(
+                    public_dependents, len(repositories), total_stars, total_forks, locale, theme
+                ),
+                encoding="utf-8",
             )
             expected_files.append(relative.as_posix())
         showcase_dir = output_dir / "showcase"
@@ -326,6 +355,8 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir):
         "themes": list(THEMES),
         "repository_count": len(repositories),
         "public_dependents": public_dependents,
+        "total_stars": total_stars,
+        "total_forks": total_forks,
         "svg_count": len(expected_files),
         "files": sorted(expected_files),
         "repositories": [

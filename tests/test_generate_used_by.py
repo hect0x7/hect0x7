@@ -145,13 +145,27 @@ class ReadmeRenderingTest(unittest.TestCase):
             "ja": "GitHub の公開データをもとに自動整理し、コミュニティの関連プロジェクトを紹介しています。",
             "ko": "GitHub 공개 데이터를 바탕으로 자동 정리하여 커뮤니티의 관련 프로젝트를 소개합니다.",
         }
+        expected_metric_labels = {
+            "zh-CN": ("Star 总数", "Fork 总数"),
+            "en": ("Total stars", "Total forks"),
+            "ja": ("Star 合計", "Fork 合計"),
+            "ko": ("Star 합계", "Fork 합계"),
+        }
         for locale, notice in expected_notices.items():
             with self.subTest(locale=locale):
-                summary = render_summary(109, 9, locale, "light")
+                summary = render_summary(109, 9, 11070, 738, locale, "light")
                 self.assertIn('width="860" height="140"', summary)
                 self.assertIn(notice, summary)
                 self.assertIn("#ff8500", summary)
+                self.assertIn("#6639ba", summary)
+                self.assertIn("#168244", summary)
+                self.assertIn("#c45d00", summary)
+                self.assertIn("#0969da", summary)
                 self.assertIn(">109<", summary)
+                self.assertIn(">11070<", summary)
+                self.assertIn(">738<", summary)
+                self.assertIn(expected_metric_labels[locale][0], summary)
+                self.assertIn(expected_metric_labels[locale][1], summary)
                 self.assertNotIn("约 109", summary)
 
     def test_showcase_embeds_summary_and_nine_cards_in_three_columns(self):
@@ -171,6 +185,8 @@ class ReadmeRenderingTest(unittest.TestCase):
         self.assertEqual(("580", "440"), (nested[9].get("x"), nested[9].get("y")))
         self.assertIn("使用 jmcomic 的项目", showcase)
         self.assertIn("owner8 / repo8", showcase)
+        self.assertIn(">11070<", showcase)
+        self.assertIn(">738<", showcase)
 
 
 class AssetGenerationTest(unittest.TestCase):
@@ -182,6 +198,8 @@ class AssetGenerationTest(unittest.TestCase):
             self.assertEqual(LOCALES, tuple(manifest["locales"]))
             self.assertEqual(THEMES, tuple(manifest["themes"]))
             self.assertEqual(88, manifest["svg_count"])
+            self.assertEqual(sum(1234 - index for index in range(9)), manifest["total_stars"])
+            self.assertEqual(sum(86 - index for index in range(9)), manifest["total_forks"])
             self.assertEqual(88, len(list(Path(output_dir).rglob("*.svg"))))
             self.assertEqual(8, len(list((Path(output_dir) / "showcase").glob("*.svg"))))
             self.assertEqual(4, len(list(Path(readme_dir).glob("README*.md"))))
@@ -213,6 +231,34 @@ class AssetGenerationTest(unittest.TestCase):
             manifest["svg_count"] = 1
             manifest_path.write_text(json.dumps(manifest))
 
+            with self.assertRaises(SystemExit):
+                validate_output(output, config, readmes)
+
+    def test_validator_rejects_malformed_or_duplicate_manifest_repositories(self):
+        repositories = [repository(i) for i in range(9)]
+        with tempfile.TemporaryDirectory() as output_dir, tempfile.TemporaryDirectory() as readme_dir:
+            output = Path(output_dir)
+            readmes = Path(readme_dir)
+            generate_assets(repositories, 109, output, readmes)
+            config = {"public_dependents": 109, "repositories": repositories}
+            manifest_path = output / "manifest.json"
+            original = json.loads(manifest_path.read_text())
+
+            malformed = json.loads(json.dumps(original))
+            malformed["repositories"][0] = "invalid"
+            manifest_path.write_text(json.dumps(malformed))
+            with self.assertRaises(SystemExit):
+                validate_output(output, config, readmes)
+
+            duplicate = json.loads(json.dumps(original))
+            duplicate["repositories"][-1] = duplicate["repositories"][0]
+            manifest_path.write_text(json.dumps(duplicate))
+            with self.assertRaises(SystemExit):
+                validate_output(output, config, readmes)
+
+            invalid_stars = json.loads(json.dumps(original))
+            invalid_stars["repositories"][0]["stars"] = "1234"
+            manifest_path.write_text(json.dumps(invalid_stars))
             with self.assertRaises(SystemExit):
                 validate_output(output, config, readmes)
 
