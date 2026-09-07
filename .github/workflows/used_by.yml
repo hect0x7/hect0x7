@@ -10,9 +10,9 @@ on:
     branches:
       - master
     paths:
-      - '.github/used-by-repositories.json'
       - '.github/workflows/used_by.yml'
       - 'scripts/generate_used_by.py'
+      - 'scripts/collect_used_by.py'
       - 'scripts/validate_used_by_output.py'
       - 'tests/test_generate_used_by.py'
       - '.github/output-README.md'
@@ -42,13 +42,13 @@ jobs:
       - name: Generate localized assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/generate_used_by.py --config .github/used-by-repositories.json --output dist --readme-dir generated-readmes
+        run: python scripts/generate_used_by.py --output dist --readme-dir generated-readmes
 
       - name: Include localized branch readmes
         run: cp generated-readmes/README*.md dist/
 
       - name: Validate generated assets
-        run: python scripts/validate_used_by_output.py --config .github/used-by-repositories.json --output dist --readme-dir dist
+        run: python scripts/validate_used_by_output.py --output dist --readme-dir dist
 
       - name: Publish orphan branch
         env:

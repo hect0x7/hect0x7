@@ -5,9 +5,14 @@ import os
 import unicodedata
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
+
+if __package__:
+    from .collect_used_by import collect_dependents, fetch_all_metadata
+else:
+    from collect_used_by import collect_dependents, fetch_all_metadata
 
 
 LOCALES = ("zh-CN", "en", "ja", "ko")
@@ -31,6 +36,8 @@ COPY = {
         "forks": "Fork 总数",
         "top": "Top {count}",
         "notice_label": "自动生成",
+        "updated": "更新时间",
+        "active": "近30天活跃数",
         "summary_notice": "根据 GitHub 公开数据自动整理，用于展示社区中的相关项目。",
     },
     "en": {
@@ -41,6 +48,8 @@ COPY = {
         "forks": "Total forks",
         "top": "Top {count}",
         "notice_label": "Automated",
+        "updated": "Updated",
+        "active": "Active in 30 days",
         "summary_notice": "Automatically organized from public GitHub data to showcase related projects in the community.",
     },
     "ja": {
@@ -51,6 +60,8 @@ COPY = {
         "forks": "Fork 合計",
         "top": "上位 {count} 件",
         "notice_label": "自動生成",
+        "updated": "更新日時",
+        "active": "過去30日の活動",
         "summary_notice": "GitHub の公開データをもとに自動整理し、コミュニティの関連プロジェクトを紹介しています。",
     },
     "ko": {
@@ -61,6 +72,8 @@ COPY = {
         "forks": "Fork 합계",
         "top": "상위 {count}개",
         "notice_label": "자동 생성",
+        "updated": "업데이트",
+        "active": "최근 30일 활동",
         "summary_notice": "GitHub 공개 데이터를 바탕으로 자동 정리하여 커뮤니티의 관련 프로젝트를 소개합니다.",
     },
 }
@@ -232,36 +245,72 @@ def render_card(repository, locale, theme):
 </svg>'''
 
 
-def render_summary(public_dependents, shown_count, total_stars, total_forks, locale, theme):
+def count_active_repositories(dependents, updated_at):
+    cutoff = updated_at - timedelta(days=30)
+    return sum(cutoff <= datetime.fromisoformat(item["pushed_at"].replace("Z", "+00:00")) <= updated_at
+               for item in dependents)
+
+
+def render_summary(public_dependents, shown_count, total_stars, total_forks, locale, theme,
+                   updated_at=None, active_count=None):
     colors = SUMMARY_PALETTES[theme]
     copy = COPY[locale]
+    updated_at = updated_at or datetime.now(timezone.utc)
+    updated_time = updated_at.astimezone(timezone(timedelta(hours=8)))
     heading = escape(copy["heading"])
     notice_label = escape(copy["notice_label"])
     notice = escape(copy["summary_notice"])
-    public_label = escape(copy["public"])
-    showing_label = escape(copy["showing"])
-    stars_label = escape(copy["stars"])
-    forks_label = escape(copy["forks"])
-    public_value = str(public_dependents)
-    showing_value = escape(copy["top"].format(count=shown_count))
-    stars_value = str(total_stars)
-    forks_value = str(total_forks)
+    notice_nodes = "".join(
+        f'<text x="46" y="{76 + index * 15}" font-size="10.5" fill="{colors["text"]}">{escape(line)}</text>'
+        for index, line in enumerate(wrap_text(copy["summary_notice"], width=66, lines=2))
+    )
+    extra_colors = {
+        "light": (("#eef2ff", "#c7d2fe", "#4f46b8"), ("#fff1f3", "#fecdd6", "#be4264")),
+        "dark": (("#202442", "#454c86", "#a5b4fc"), ("#38202d", "#794052", "#f3a6bc")),
+    }
+    metrics = [
+        (copy["public"], str(public_dependents), "public"),
+        (copy["showing"], copy["top"].format(count=shown_count), "top"),
+        (copy["active"], str(active_count) if active_count is not None else "—", "active"),
+        (copy["stars"], str(total_stars), "stars"),
+        (copy["forks"], str(total_forks), "forks"),
+        (copy["updated"], f"{updated_time:%Y-%m-%d}", "updated"),
+    ]
+    # Keep the original four metrics in place; prepend the new column.
+    metrics = [metrics[index] for index in (2, 0, 1, 5, 3, 4)]
+    metric_nodes = []
+    for index, (label, value, key) in enumerate(metrics):
+        if key in ("active", "updated"):
+            bg, border, text = extra_colors[theme][0 if key == "active" else 1]
+        else:
+            bg, border, text = (colors[f"{key}_{part}"] for part in ("bg", "border", "text"))
+        x, y = 468 + index % 3 * 126, 24 + index // 3 * 52
+        size = 14 if key == "updated" else 16
+        detail = f' data-updated-at="{updated_at.isoformat()}"' if key == "updated" else ""
+        tooltip = "UTC+8" if key == "updated" else f"{label}: {value}"
+        if key == "active":
+            tooltip = f"{label}: {value} / {public_dependents}"
+        metric_nodes.append(f'''<g transform="translate({x} {y})"{detail}>
+    <title>{escape(tooltip)}</title>
+    <rect width="116" height="42" rx="7" fill="{bg}" stroke="{border}"/>
+    <text x="10" y="17" font-size="9.5" fill="{text}">{escape(label)}</text>
+    <text x="10" y="35" font-size="{size}" font-weight="700" fill="{text}">{escape(value)}</text>
+  </g>''')
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="860" height="140" viewBox="0 0 860 140" role="img" aria-label="{heading}">
+  <desc>{notice}</desc>
   <style>text {{ font-family:{font_family()}; }}</style>
   <rect x="4" y="4" width="852" height="132" rx="8" fill="{colors['card']}" stroke="{colors['border']}"/>
   <rect x="22" y="24" width="5" height="92" rx="2.5" fill="{colors['accent']}"/>
-  <text x="46" y="53" font-size="27" font-weight="700" fill="{colors['title']}">{heading}</text>
-  <rect x="46" y="72" width="68" height="24" rx="5" fill="{colors['notice_bg']}"/>
-  <text x="57" y="89" font-size="12" font-weight="700" fill="{colors['notice_label']}">{notice_label}</text>
-  <text x="126" y="89" font-size="10.5" fill="{colors['text']}">{notice}</text>
-  <g transform="translate(594 24)"><rect width="116" height="42" rx="7" fill="{colors['public_bg']}" stroke="{colors['public_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['public_text']}">{public_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['public_text']}">{public_value}</text></g>
-  <g transform="translate(720 24)"><rect width="116" height="42" rx="7" fill="{colors['top_bg']}" stroke="{colors['top_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['top_text']}">{showing_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['top_text']}">{showing_value}</text></g>
-  <g transform="translate(594 76)"><rect width="116" height="42" rx="7" fill="{colors['stars_bg']}" stroke="{colors['stars_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['stars_text']}">{stars_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['stars_text']}">{stars_value}</text></g>
-  <g transform="translate(720 76)"><rect width="116" height="42" rx="7" fill="{colors['forks_bg']}" stroke="{colors['forks_border']}"/><text x="10" y="17" font-size="9.5" fill="{colors['forks_text']}">{forks_label}</text><text x="10" y="35" font-size="16" font-weight="700" fill="{colors['forks_text']}">{forks_value}</text></g>
+  <text x="46" y="49" font-size="22" font-weight="700" fill="{colors['title']}">{heading}</text>
+  {notice_nodes}
+  <rect x="46" y="101" width="68" height="21" rx="5" fill="{colors['notice_bg']}"/>
+  <text x="57" y="116" font-size="12" font-weight="700" fill="{colors['notice_label']}">{notice_label}</text>
+  {''.join(metric_nodes)}
 </svg>'''
 
 
-def render_showcase(repositories, public_dependents, locale, theme):
+def render_showcase(repositories, public_dependents, locale, theme, updated_at=None, active_count=None):
+    updated_at = updated_at or datetime.now(timezone.utc)
     total_stars = sum(repository["stargazers_count"] for repository in repositories)
     total_forks = sum(repository["forks_count"] for repository in repositories)
     root = ET.Element(
@@ -275,7 +324,8 @@ def render_showcase(repositories, public_dependents, locale, theme):
         },
     )
     summary = ET.fromstring(
-        render_summary(public_dependents, len(repositories), total_stars, total_forks, locale, theme)
+        render_summary(public_dependents, len(repositories), total_stars, total_forks, locale, theme, updated_at,
+                       active_count)
     )
     summary.set("x", "0")
     summary.set("y", "0")
@@ -313,7 +363,14 @@ def render_readme(repositories, locale, public_dependents):
     return "\n".join(lines)
 
 
-def generate_assets(repositories, public_dependents, output_dir, readme_dir):
+def generate_assets(repositories, public_dependents, output_dir, readme_dir, dependents=None):
+    updated_at = datetime.now(timezone.utc)
+    active_count = None
+    if dependents is not None:
+        names = [item["full_name"].lower() for item in dependents]
+        if len(names) != public_dependents or len(set(names)) != len(names):
+            raise ValueError("full dependents snapshot must match the public count")
+        active_count = count_active_repositories(dependents, updated_at)
     output_dir.mkdir(parents=True, exist_ok=True)
     readme_dir.mkdir(parents=True, exist_ok=True)
     repositories = sorted(repositories, key=lambda item: item["stargazers_count"], reverse=True)
@@ -334,7 +391,8 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir):
             relative = Path("summary") / f"{locale}-{theme}.svg"
             (output_dir / relative).write_text(
                 render_summary(
-                    public_dependents, len(repositories), total_stars, total_forks, locale, theme
+                    public_dependents, len(repositories), total_stars, total_forks, locale, theme, updated_at,
+                    active_count
                 ),
                 encoding="utf-8",
             )
@@ -344,13 +402,15 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir):
         for theme in THEMES:
             relative = Path("showcase") / f"{locale}-{theme}.svg"
             (output_dir / relative).write_text(
-                render_showcase(repositories, public_dependents, locale, theme), encoding="utf-8"
+                render_showcase(repositories, public_dependents, locale, theme, updated_at, active_count), encoding="utf-8"
             )
             expected_files.append(relative.as_posix())
         (readme_dir / README_FILES[locale]).write_text(
             render_readme(repositories, locale, public_dependents), encoding="utf-8"
         )
     manifest = {
+        "updated_at": updated_at.isoformat(),
+        "active_repositories_30d": active_count,
         "locales": list(LOCALES),
         "themes": list(THEMES),
         "repository_count": len(repositories),
@@ -388,19 +448,17 @@ def fetch_repository(owner, repo, token=None):
         return json.load(response)
 
 
-def build_repositories(config, metadata=None, token=None):
-    metadata_by_name = {
-        item["full_name"].lower(): item for item in (metadata or [])
-    }
+def build_repositories(metadata):
+    ranked = sorted(metadata, key=lambda item: (-item["stargazers_count"], item["full_name"].lower()))
     output = []
-    for item in config["repositories"]:
-        key = f"{item['owner']}/{item['repo']}".lower()
-        api = metadata_by_name.get(key) or fetch_repository(item["owner"], item["repo"], token)
-        description = api.get("description") or f"{item['owner']}/{item['repo']}"
-        descriptions = {locale: description for locale in LOCALES}
+    for api in ranked[:9]:
+        owner, repo = api["full_name"].split("/")
+        description = api.get("description") or api["full_name"]
         output.append({
-            **item,
-            "descriptions": descriptions,
+            "owner": owner,
+            "repo": repo,
+            "slug": f"{owner}--{repo}",
+            "descriptions": {locale: description for locale in LOCALES},
             "stargazers_count": api["stargazers_count"],
             "forks_count": api["forks_count"],
             "pushed_at": api["pushed_at"],
@@ -411,15 +469,14 @@ def build_repositories(config, metadata=None, token=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default=".github/used-by-repositories.json")
     parser.add_argument("--output", default="dist")
     parser.add_argument("--readme-dir", default="generated-readmes")
-    parser.add_argument("--metadata")
     args = parser.parse_args()
-    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    metadata = json.loads(Path(args.metadata).read_text(encoding="utf-8")) if args.metadata else None
-    repositories = build_repositories(config, metadata, os.environ.get("GITHUB_TOKEN"))
-    generate_assets(repositories, config["public_dependents"], Path(args.output), Path(args.readme_dir))
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    names = collect_dependents()
+    dependents = fetch_all_metadata(names, fetch_repository, token)
+    repositories = build_repositories(dependents)
+    generate_assets(repositories, len(dependents), Path(args.output), Path(args.readme_dir), dependents)
 
 
 if __name__ == "__main__":

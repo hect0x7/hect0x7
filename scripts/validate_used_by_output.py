@@ -19,12 +19,13 @@ def fail(message):
     raise SystemExit(message)
 
 
-def expected_svg_files(config):
-    repositories = config.get("repositories")
-    if not isinstance(repositories, list) or len(repositories) != REQUIRED_REPOSITORY_COUNT:
-        fail(f"expected {REQUIRED_REPOSITORY_COUNT} configured repositories")
+def expected_svg_files(manifest):
+    repositories = manifest.get("repositories")
+    required_count = min(REQUIRED_REPOSITORY_COUNT, manifest["public_dependents"])
+    if not isinstance(repositories, list) or len(repositories) != required_count:
+        fail(f"expected {required_count} selected repositories")
     slugs = [item.get("slug") for item in repositories if isinstance(item, dict)]
-    if len(slugs) != REQUIRED_REPOSITORY_COUNT or any(
+    if len(slugs) != required_count or any(
         not isinstance(slug, str) or not SAFE_SLUG.fullmatch(slug) for slug in slugs
     ):
         fail("repository slugs must be non-empty and path-safe")
@@ -49,31 +50,29 @@ def expected_svg_files(config):
     return cards | summaries | showcases
 
 
-def validate_output(output, config, readme_dir):
+def validate_output(output, readme_dir):
     output = Path(output)
     readme_dir = Path(readme_dir)
-    expected = expected_svg_files(config)
     manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    public_count = manifest.get("public_dependents")
+    active_count = manifest.get("active_repositories_30d")
+    if type(public_count) is not int or public_count < 0:
+        fail("invalid public dependents count")
+    if type(active_count) is not int or not 0 <= active_count <= public_count:
+        fail("invalid active dependents count")
+    expected = expected_svg_files(manifest)
+    required_count = min(REQUIRED_REPOSITORY_COUNT, public_count)
     required_manifest = {
         "locales": list(LOCALES),
         "themes": list(THEMES),
-        "repository_count": REQUIRED_REPOSITORY_COUNT,
-        "public_dependents": config.get("public_dependents"),
+        "repository_count": required_count,
         "svg_count": len(expected),
         "files": sorted(expected),
     }
     for key, value in required_manifest.items():
         if manifest.get(key) != value:
             fail(f"invalid manifest field {key}")
-    manifest_repositories = manifest.get("repositories")
-    if not isinstance(manifest_repositories, list) or any(
-        not isinstance(item, dict) for item in manifest_repositories
-    ) or len(manifest_repositories) != REQUIRED_REPOSITORY_COUNT:
-        fail("manifest repository list does not match configuration")
-    manifest_slugs = [item.get("slug") for item in manifest_repositories]
-    configured_slugs = [item["slug"] for item in config["repositories"]]
-    if len(set(manifest_slugs)) != REQUIRED_REPOSITORY_COUNT or set(manifest_slugs) != set(configured_slugs):
-        fail("manifest repository list does not match configuration")
+    manifest_repositories = manifest["repositories"]
     if any(not isinstance(item.get("stars"), int) for item in manifest_repositories):
         fail("manifest repository stars must be integers")
     if any(not isinstance(item.get("forks"), int) for item in manifest_repositories):
@@ -115,12 +114,10 @@ def validate_output(output, config, readme_dir):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default=".github/used-by-repositories.json")
     parser.add_argument("--output", default="dist")
     parser.add_argument("--readme-dir", default="dist")
     args = parser.parse_args()
-    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    count = validate_output(args.output, config, args.readme_dir)
+    count = validate_output(args.output, args.readme_dir)
     print(f"validated {count} SVG files")
 
 

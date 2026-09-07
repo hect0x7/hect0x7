@@ -12,7 +12,7 @@ from scripts.generate_used_by import (
     THEMES,
     build_repositories,
     format_date,
-    generate_assets,
+    generate_assets as generate_assets_impl,
     render_card,
     render_readme,
     render_summary,
@@ -36,6 +36,47 @@ def repository(index=0):
         "pushed_at": "2026-07-20T08:30:00Z",
         "html_url": f"https://github.com/owner{index}/repo{index}",
     }
+
+
+def generate_assets(repositories, public_dependents, output_dir, readme_dir):
+    dependents = [{"full_name": f"dependent/repo{i}", "pushed_at": "2026-07-20T08:30:00Z"}
+                  for i in range(public_dependents)]
+    return generate_assets_impl(repositories, public_dependents, output_dir, readme_dir, dependents)
+
+
+class DependentsCollectionTest(unittest.TestCase):
+    @staticmethod
+    def page(names, next_url=None):
+        header = '<a class="selected" href="?dependent_type=REPOSITORY">112 Repositories</a>'
+        rows = ''.join(f'<span data-repository-hovercards-enabled><a data-hovercard-type="repository" href="/{name}">repo</a></span>' for name in names)
+        pagination = f'<a href="{next_url}">Next</a>' if next_url else '<button disabled="disabled">Next</button>'
+        return header + rows + pagination
+
+    def test_all_pages_are_collected_instead_of_using_approximate_header(self):
+        from scripts.collect_used_by import DEPENDENTS_URL, collect_dependents
+        pages = {DEPENDENTS_URL: self.page(["owner/one"], "?dependents_after=next"),
+                 DEPENDENTS_URL + "?dependents_after=next": self.page(["owner/two"])}
+        self.assertEqual(["owner/one", "owner/two"], collect_dependents(pages.__getitem__))
+
+    def test_missing_pagination_and_failed_next_page_are_not_partial_success(self):
+        from scripts.collect_used_by import collect_dependents, parse_dependents_page
+        with self.assertRaises(ValueError):
+            parse_dependents_page(self.page(["owner/one"]).replace('<button disabled="disabled">Next</button>', ''))
+        calls = []
+        def broken_next(url):
+            calls.append(url)
+            if len(calls) == 2:
+                raise OSError("request failed")
+            return self.page(["owner/one"], "?dependents_after=next")
+        with self.assertRaises(OSError):
+            collect_dependents(broken_next)
+
+    def test_failed_metadata_fetch_aborts_collection(self):
+        from scripts.collect_used_by import fetch_all_metadata
+        def unavailable(owner, repo, token):
+            raise OSError("request failed")
+        with self.assertRaises(OSError):
+            fetch_all_metadata(["owner/one"], unavailable)
 
 
 class CardRenderingTest(unittest.TestCase):
@@ -190,6 +231,28 @@ class ReadmeRenderingTest(unittest.TestCase):
 
 
 class AssetGenerationTest(unittest.TestCase):
+    def test_activity_uses_full_snapshot_and_inclusive_30_day_boundary(self):
+        now = generator.datetime.fromisoformat("2026-09-07T03:00:00+00:00")
+        from unittest.mock import patch
+        dependents = [{"full_name": f"dependent/repo{i}", "pushed_at": "2026-09-06T00:00:00Z"}
+                      for i in range(12)]
+        dependents[-1]["pushed_at"] = "2026-08-08T03:00:00Z"
+        dependents[-2]["pushed_at"] = "2026-08-08T02:59:59Z"
+        dependents[-3]["pushed_at"] = "2026-09-07T03:00:01Z"
+        self.assertEqual(10, generator.count_active_repositories(dependents, now))
+        with tempfile.TemporaryDirectory() as directory, patch.object(generator, "datetime") as clock:
+            clock.now.return_value = now
+            clock.fromisoformat.side_effect = __import__("datetime").datetime.fromisoformat
+            output = Path(directory)
+            manifest = generate_assets_impl([repository(i) for i in range(9)], 12, output, output, dependents)
+            self.assertEqual(10, manifest["active_repositories_30d"])
+            self.assertIn(">10<", (output / "showcase/zh-CN-light.svg").read_text(encoding="utf-8"))
+            self.assertEqual(88, validate_output(output, output))
+            manifest["active_repositories_30d"] = 13
+            (output / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                validate_output(output, output)
+
     def test_generates_exact_manifest_for_9_repositories(self):
         repositories = [repository(i) for i in range(9)]
         with tempfile.TemporaryDirectory() as output_dir, tempfile.TemporaryDirectory() as readme_dir:
@@ -212,11 +275,10 @@ class AssetGenerationTest(unittest.TestCase):
             output = Path(output_dir)
             readmes = Path(readme_dir)
             generate_assets(repositories, 109, output, readmes)
-            config = {"public_dependents": 109, "repositories": repositories}
-            self.assertEqual(88, validate_output(output, config, readmes))
+            self.assertEqual(88, validate_output(output, readmes))
             next(output.rglob("*.svg")).unlink()
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
+                validate_output(output, readmes)
 
     def test_validator_rejects_a_self_consistent_incomplete_manifest(self):
         repositories = [repository(i) for i in range(9)]
@@ -224,7 +286,6 @@ class AssetGenerationTest(unittest.TestCase):
             output = Path(output_dir)
             readmes = Path(readme_dir)
             generate_assets(repositories, 109, output, readmes)
-            config = {"public_dependents": 109, "repositories": repositories}
             manifest_path = output / "manifest.json"
             manifest = json.loads(manifest_path.read_text())
             manifest["files"] = manifest["files"][:1]
@@ -232,7 +293,7 @@ class AssetGenerationTest(unittest.TestCase):
             manifest_path.write_text(json.dumps(manifest))
 
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
+                validate_output(output, readmes)
 
     def test_validator_rejects_malformed_or_duplicate_manifest_repositories(self):
         repositories = [repository(i) for i in range(9)]
@@ -240,7 +301,6 @@ class AssetGenerationTest(unittest.TestCase):
             output = Path(output_dir)
             readmes = Path(readme_dir)
             generate_assets(repositories, 109, output, readmes)
-            config = {"public_dependents": 109, "repositories": repositories}
             manifest_path = output / "manifest.json"
             original = json.loads(manifest_path.read_text())
 
@@ -248,19 +308,19 @@ class AssetGenerationTest(unittest.TestCase):
             malformed["repositories"][0] = "invalid"
             manifest_path.write_text(json.dumps(malformed))
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
+                validate_output(output, readmes)
 
             duplicate = json.loads(json.dumps(original))
             duplicate["repositories"][-1] = duplicate["repositories"][0]
             manifest_path.write_text(json.dumps(duplicate))
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
+                validate_output(output, readmes)
 
             invalid_stars = json.loads(json.dumps(original))
             invalid_stars["repositories"][0]["stars"] = "1234"
             manifest_path.write_text(json.dumps(invalid_stars))
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
+                validate_output(output, readmes)
 
     def test_validator_rejects_missing_readme_and_unsafe_or_duplicate_slugs(self):
         repositories = [repository(i) for i in range(9)]
@@ -268,27 +328,21 @@ class AssetGenerationTest(unittest.TestCase):
             output = Path(output_dir)
             readmes = Path(readme_dir)
             generate_assets(repositories, 109, output, readmes)
-            config = {"public_dependents": 109, "repositories": repositories}
             (readmes / "README-kr.md").unlink()
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
+                validate_output(output, readmes)
 
     def test_validator_cli_runs_from_repository_root(self):
         repositories = [repository(i) for i in range(9)]
-        with tempfile.TemporaryDirectory() as output_dir, tempfile.TemporaryDirectory() as readme_dir, tempfile.TemporaryDirectory() as config_dir:
+        with tempfile.TemporaryDirectory() as output_dir, tempfile.TemporaryDirectory() as readme_dir:
             output = Path(output_dir)
             readmes = Path(readme_dir)
-            config = {"public_dependents": 109, "repositories": repositories}
-            config_file = Path(config_dir) / "config.json"
-            config_file.write_text(json.dumps(config), encoding="utf-8")
             generate_assets(repositories, 109, output, readmes)
 
             result = subprocess.run(
                 [
                     sys.executable,
                     "scripts/validate_used_by_output.py",
-                    "--config",
-                    str(config_file),
                     "--output",
                     output_dir,
                     "--readme-dir",
@@ -302,29 +356,19 @@ class AssetGenerationTest(unittest.TestCase):
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertIn("validated 88 SVG files", result.stdout)
 
-            config["repositories"][1]["slug"] = config["repositories"][0]["slug"]
+            manifest_path = output / "manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["repositories"][1]["slug"] = manifest["repositories"][0]["slug"]
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
+                validate_output(output, readmes)
 
-            config["repositories"][1]["slug"] = "../unsafe"
+            manifest["repositories"][1]["slug"] = "../unsafe"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             with self.assertRaises(SystemExit):
-                validate_output(output, config, readmes)
-
-    def test_repository_config_has_no_custom_descriptions(self):
-        config = json.loads(Path(".github/used-by-repositories.json").read_text())
-        self.assertEqual(9, len(config["repositories"]))
-        for item in config["repositories"]:
-            self.assertNotIn("descriptions", item)
+                validate_output(output, readmes)
 
     def test_build_repositories_uses_original_api_description_for_every_locale(self):
-        config = {
-            "repositories": [{
-                "owner": "owner0",
-                "repo": "repo0",
-                "slug": "owner0--repo0",
-                "descriptions": {locale: "Custom generated copy" for locale in LOCALES},
-            }]
-        }
         metadata = [{
             "full_name": "owner0/repo0",
             "description": "Original repository description",
@@ -334,18 +378,31 @@ class AssetGenerationTest(unittest.TestCase):
             "html_url": "https://github.com/owner0/repo0",
         }]
 
-        built = build_repositories(config, metadata=metadata)
+        built = build_repositories(metadata)
 
         self.assertEqual(
             {locale: "Original repository description" for locale in LOCALES},
             built[0]["descriptions"],
         )
 
+    def test_selects_real_top_nine_from_all_dependents(self):
+        metadata = [{"full_name": f"owner/repo{i:02}", "stargazers_count": i,
+                     "forks_count": 0, "pushed_at": "2026-09-07T00:00:00Z",
+                     "html_url": f"https://github.com/owner/repo{i:02}"} for i in range(12)]
+        built = build_repositories(metadata)
+        self.assertEqual([11, 10, 9, 8, 7, 6, 5, 4, 3], [item["stargazers_count"] for item in built])
+        self.assertEqual("owner--repo11", built[0]["slug"])
+        metadata[0]["stargazers_count"] = 11
+        self.assertEqual("repo00", build_repositories(list(reversed(metadata)))[0]["repo"])
+        self.assertEqual(2, len(build_repositories(metadata[:2])))
+
     def test_workflow_uses_local_generator_and_publishes_only_used_by(self):
         workflow = Path(".github/workflows/used_by.yml").read_text()
         self.assertIn("python scripts/generate_used_by.py", workflow)
         self.assertIn("python scripts/validate_used_by_output.py", workflow)
         self.assertIn("--readme-dir dist", workflow)
+        self.assertNotIn("--config", workflow)
+        self.assertFalse(Path(".github/used-by-repositories.json").exists())
         self.assertIn("HEAD:used-by", workflow)
         self.assertIn("schedule:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
