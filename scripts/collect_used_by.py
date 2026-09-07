@@ -75,11 +75,10 @@ def collect_dependents(fetch_page=read_page):
             raise ValueError("dependents changed during collection; retry the complete run")
         expected = total
         names.update(name.lower() for name in page_names)
-    # GitHub explicitly labels its header count approximate. Count actual rows
-    # after traversing every page, rather than treating that estimate as exact.
+    # Keep GitHub's reported count separate from the enumerable repository list.
     if expected and not names:
         raise ValueError("no repositories parsed from a non-empty dependents view")
-    return sorted(names)
+    return expected, sorted(names)
 
 
 def fetch_all_metadata(names, fetch_repository, token=None):

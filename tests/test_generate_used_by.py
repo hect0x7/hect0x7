@@ -56,7 +56,7 @@ class DependentsCollectionTest(unittest.TestCase):
         from scripts.collect_used_by import DEPENDENTS_URL, collect_dependents
         pages = {DEPENDENTS_URL: self.page(["owner/one"], "?dependents_after=next"),
                  DEPENDENTS_URL + "?dependents_after=next": self.page(["owner/two"])}
-        self.assertEqual(["owner/one", "owner/two"], collect_dependents(pages.__getitem__))
+        self.assertEqual((112, ["owner/one", "owner/two"]), collect_dependents(pages.__getitem__))
 
     def test_missing_pagination_and_failed_next_page_are_not_partial_success(self):
         from scripts.collect_used_by import collect_dependents, parse_dependents_page
@@ -252,6 +252,16 @@ class AssetGenerationTest(unittest.TestCase):
             (output / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
             with self.assertRaises(SystemExit):
                 validate_output(output, output)
+
+    def test_reported_total_is_not_replaced_by_collected_count(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            dependents = [{"full_name": f"owner/repo{i}", "pushed_at": "2026-07-20T08:30:00Z"} for i in range(73)]
+            manifest = generate_assets_impl([repository(i) for i in range(9)], 110, output, output, dependents)
+            self.assertEqual(110, manifest["public_dependents"])
+            self.assertEqual(73, manifest["collected_dependents"])
+            self.assertIn(">110<", (output / "summary/zh-CN-light.svg").read_text(encoding="utf-8"))
+            self.assertEqual(88, validate_output(output, output))
 
     def test_generates_exact_manifest_for_9_repositories(self):
         repositories = [repository(i) for i in range(9)]

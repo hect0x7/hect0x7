@@ -21,7 +21,7 @@ def fail(message):
 
 def expected_svg_files(manifest):
     repositories = manifest.get("repositories")
-    required_count = min(REQUIRED_REPOSITORY_COUNT, manifest["public_dependents"])
+    required_count = min(REQUIRED_REPOSITORY_COUNT, manifest["collected_dependents"])
     if not isinstance(repositories, list) or len(repositories) != required_count:
         fail(f"expected {required_count} selected repositories")
     slugs = [item.get("slug") for item in repositories if isinstance(item, dict)]
@@ -56,12 +56,15 @@ def validate_output(output, readme_dir):
     manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
     public_count = manifest.get("public_dependents")
     active_count = manifest.get("active_repositories_30d")
+    collected_count = manifest.get("collected_dependents")
+    if type(collected_count) is not int or collected_count < 0:
+        fail("invalid collected dependents count")
     if type(public_count) is not int or public_count < 0:
         fail("invalid public dependents count")
-    if type(active_count) is not int or not 0 <= active_count <= public_count:
+    if type(active_count) is not int or not 0 <= active_count <= collected_count:
         fail("invalid active dependents count")
     expected = expected_svg_files(manifest)
-    required_count = min(REQUIRED_REPOSITORY_COUNT, public_count)
+    required_count = min(REQUIRED_REPOSITORY_COUNT, collected_count)
     required_manifest = {
         "locales": list(LOCALES),
         "themes": list(THEMES),

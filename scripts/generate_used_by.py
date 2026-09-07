@@ -37,7 +37,7 @@ COPY = {
         "top": "Top {count}",
         "notice_label": "自动生成",
         "updated": "更新时间",
-        "active": "近30天活跃数",
+        "active": "30天活跃（可查询）",
         "summary_notice": "根据 GitHub 公开数据自动整理，用于展示社区中的相关项目。",
     },
     "en": {
@@ -49,7 +49,7 @@ COPY = {
         "top": "Top {count}",
         "notice_label": "Automated",
         "updated": "Updated",
-        "active": "Active in 30 days",
+        "active": "Active 30d (listed)",
         "summary_notice": "Automatically organized from public GitHub data to showcase related projects in the community.",
     },
     "ja": {
@@ -61,7 +61,7 @@ COPY = {
         "top": "上位 {count} 件",
         "notice_label": "自動生成",
         "updated": "更新日時",
-        "active": "過去30日の活動",
+        "active": "30日活動（取得分）",
         "summary_notice": "GitHub の公開データをもとに自動整理し、コミュニティの関連プロジェクトを紹介しています。",
     },
     "ko": {
@@ -73,7 +73,7 @@ COPY = {
         "top": "상위 {count}개",
         "notice_label": "자동 생성",
         "updated": "업데이트",
-        "active": "최근 30일 활동",
+        "active": "30일 활동 (조회분)",
         "summary_notice": "GitHub 공개 데이터를 바탕으로 자동 정리하여 커뮤니티의 관련 프로젝트를 소개합니다.",
     },
 }
@@ -252,7 +252,7 @@ def count_active_repositories(dependents, updated_at):
 
 
 def render_summary(public_dependents, shown_count, total_stars, total_forks, locale, theme,
-                   updated_at=None, active_count=None):
+                   updated_at=None, active_count=None, collected_count=None):
     colors = SUMMARY_PALETTES[theme]
     copy = COPY[locale]
     updated_at = updated_at or datetime.now(timezone.utc)
@@ -289,7 +289,7 @@ def render_summary(public_dependents, shown_count, total_stars, total_forks, loc
         detail = f' data-updated-at="{updated_at.isoformat()}"' if key == "updated" else ""
         tooltip = "UTC+8" if key == "updated" else f"{label}: {value}"
         if key == "active":
-            tooltip = f"{label}: {value} / {public_dependents}"
+            tooltip = f"{label}: {value} / {collected_count if collected_count is not None else shown_count}"
         metric_nodes.append(f'''<g transform="translate({x} {y})"{detail}>
     <title>{escape(tooltip)}</title>
     <rect width="116" height="42" rx="7" fill="{bg}" stroke="{border}"/>
@@ -309,7 +309,7 @@ def render_summary(public_dependents, shown_count, total_stars, total_forks, loc
 </svg>'''
 
 
-def render_showcase(repositories, public_dependents, locale, theme, updated_at=None, active_count=None):
+def render_showcase(repositories, public_dependents, locale, theme, updated_at=None, active_count=None, collected_count=None):
     updated_at = updated_at or datetime.now(timezone.utc)
     total_stars = sum(repository["stargazers_count"] for repository in repositories)
     total_forks = sum(repository["forks_count"] for repository in repositories)
@@ -325,7 +325,7 @@ def render_showcase(repositories, public_dependents, locale, theme, updated_at=N
     )
     summary = ET.fromstring(
         render_summary(public_dependents, len(repositories), total_stars, total_forks, locale, theme, updated_at,
-                       active_count)
+                       active_count, collected_count)
     )
     summary.set("x", "0")
     summary.set("y", "0")
@@ -368,9 +368,10 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir, dep
     active_count = None
     if dependents is not None:
         names = [item["full_name"].lower() for item in dependents]
-        if len(names) != public_dependents or len(set(names)) != len(names):
-            raise ValueError("full dependents snapshot must match the public count")
+        if len(set(names)) != len(names):
+            raise ValueError("dependent repositories must be unique")
         active_count = count_active_repositories(dependents, updated_at)
+    collected_count = len(dependents) if dependents is not None else len(repositories)
     output_dir.mkdir(parents=True, exist_ok=True)
     readme_dir.mkdir(parents=True, exist_ok=True)
     repositories = sorted(repositories, key=lambda item: item["stargazers_count"], reverse=True)
@@ -392,7 +393,7 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir, dep
             (output_dir / relative).write_text(
                 render_summary(
                     public_dependents, len(repositories), total_stars, total_forks, locale, theme, updated_at,
-                    active_count
+                    active_count, collected_count
                 ),
                 encoding="utf-8",
             )
@@ -402,7 +403,7 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir, dep
         for theme in THEMES:
             relative = Path("showcase") / f"{locale}-{theme}.svg"
             (output_dir / relative).write_text(
-                render_showcase(repositories, public_dependents, locale, theme, updated_at, active_count), encoding="utf-8"
+                render_showcase(repositories, public_dependents, locale, theme, updated_at, active_count, collected_count), encoding="utf-8"
             )
             expected_files.append(relative.as_posix())
         (readme_dir / README_FILES[locale]).write_text(
@@ -415,6 +416,7 @@ def generate_assets(repositories, public_dependents, output_dir, readme_dir, dep
         "themes": list(THEMES),
         "repository_count": len(repositories),
         "public_dependents": public_dependents,
+        "collected_dependents": collected_count,
         "total_stars": total_stars,
         "total_forks": total_forks,
         "svg_count": len(expected_files),
@@ -473,10 +475,12 @@ def main():
     parser.add_argument("--readme-dir", default="generated-readmes")
     args = parser.parse_args()
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    names = collect_dependents()
+    public_count, names = collect_dependents()
     dependents = fetch_all_metadata(names, fetch_repository, token)
     repositories = build_repositories(dependents)
-    generate_assets(repositories, len(dependents), Path(args.output), Path(args.readme_dir), dependents)
+    manifest = generate_assets(repositories, public_count, Path(args.output), Path(args.readme_dir), dependents)
+    print(f"GitHub reported dependents: {public_count}; collected repositories: {len(dependents)}; "
+          f"active in collected repositories (30 days): {manifest['active_repositories_30d']}")
 
 
 if __name__ == "__main__":
