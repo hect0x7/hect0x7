@@ -37,7 +37,7 @@ COPY = {
         "top": "Top {count}",
         "notice_label": "自动生成",
         "updated": "更新时间",
-        "active": "30天活跃（可查询）",
+        "active": "近30天活跃数",
         "summary_notice": "根据 GitHub 公开数据自动整理，用于展示社区中的相关项目。",
     },
     "en": {
@@ -49,7 +49,7 @@ COPY = {
         "top": "Top {count}",
         "notice_label": "Automated",
         "updated": "Updated",
-        "active": "Active 30d (listed)",
+        "active": "Active in 30 days",
         "summary_notice": "Automatically organized from public GitHub data to showcase related projects in the community.",
     },
     "ja": {
@@ -61,7 +61,7 @@ COPY = {
         "top": "上位 {count} 件",
         "notice_label": "自動生成",
         "updated": "更新日時",
-        "active": "30日活動（取得分）",
+        "active": "過去30日の活動",
         "summary_notice": "GitHub の公開データをもとに自動整理し、コミュニティの関連プロジェクトを紹介しています。",
     },
     "ko": {
@@ -73,7 +73,7 @@ COPY = {
         "top": "상위 {count}개",
         "notice_label": "자동 생성",
         "updated": "업데이트",
-        "active": "30일 활동 (조회분)",
+        "active": "최근 30일 활동",
         "summary_notice": "GitHub 공개 데이터를 바탕으로 자동 정리하여 커뮤니티의 관련 프로젝트를 소개합니다.",
     },
 }
