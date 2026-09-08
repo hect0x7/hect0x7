@@ -1,11 +1,16 @@
 """Collect every public repository listed in GitHub's dependents view."""
 import re
+import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlparse
 
 DEPENDENTS_URL = "https://github.com/hect0x7/JMComic-Crawler-Python/network/dependents"
+
+
+class DependentsCountError(ValueError):
+    """The page did not expose a unique numeric repository count."""
 
 
 class Links(HTMLParser):
@@ -33,9 +38,10 @@ def parse_dependents_page(html):
     page.feed(html)
     totals = [int(re.sub(r"\D", "", text)) for attrs, text in page.links
               if "selected" in attrs.get("class", "").split()
-              and "dependent_type=REPOSITORY" in attrs.get("href", "")]
+              and "dependent_type=REPOSITORY" in attrs.get("href", "")
+              and re.search(r"[0-9]", text)]
     if len(totals) != 1:
-        raise ValueError("cannot read the displayed dependents count")
+        raise DependentsCountError("cannot read the displayed dependents count")
     names = []
     for row in re.findall(r'<span\b[^>]*data-repository-hovercards-enabled[^>]*>(.*?)</span>', html, re.S):
         links = Links()
@@ -70,7 +76,15 @@ def collect_dependents(fetch_page=read_page):
                 or parsed.path != urlparse(DEPENDENTS_URL).path or url in seen_pages):
             raise ValueError("invalid or repeated dependents pagination URL")
         seen_pages.add(url)
-        total, page_names, url = parse_dependents_page(fetch_page(url))
+        for attempt in range(3):
+            try:
+                total, page_names, next_url = parse_dependents_page(fetch_page(url))
+                break
+            except DependentsCountError:
+                if attempt == 2:
+                    raise
+                time.sleep(attempt + 1)
+        url = next_url
         if expected is not None and total != expected:
             raise ValueError("dependents changed during collection; retry the complete run")
         expected = total

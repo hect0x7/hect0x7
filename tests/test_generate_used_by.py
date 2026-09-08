@@ -3,6 +3,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -57,6 +58,37 @@ class DependentsCollectionTest(unittest.TestCase):
         pages = {DEPENDENTS_URL: self.page(["owner/one"], "?dependents_after=next"),
                  DEPENDENTS_URL + "?dependents_after=next": self.page(["owner/two"])}
         self.assertEqual((112, ["owner/one", "owner/two"]), collect_dependents(pages.__getitem__))
+
+    def test_repository_navigation_without_digits_is_ignored(self):
+        from scripts.collect_used_by import parse_dependents_page
+        navigation = '<a class="selected" href="?dependent_type=REPOSITORY">Repositories</a>'
+        self.assertEqual((112, ["owner/one"], None),
+                         parse_dependents_page(navigation + self.page(["owner/one"])))
+
+    def test_missing_count_retries_the_same_page(self):
+        from scripts.collect_used_by import DEPENDENTS_URL, collect_dependents
+        valid = self.page(["owner/one"])
+        with patch("scripts.collect_used_by.time.sleep"), patch(
+            "scripts.collect_used_by.read_page", side_effect=[valid.replace("112 Repositories", "Repositories"), valid]
+        ) as fetch:
+            self.assertEqual((112, ["owner/one"]), collect_dependents(fetch))
+        self.assertEqual([DEPENDENTS_URL, DEPENDENTS_URL], [call.args[0] for call in fetch.call_args_list])
+
+    def test_missing_count_never_becomes_zero_or_row_count(self):
+        from scripts.collect_used_by import DependentsCountError, collect_dependents
+        with patch("scripts.collect_used_by.time.sleep"), patch(
+            "scripts.collect_used_by.read_page", return_value=self.page(["owner/one"]).replace("112 Repositories", "Repositories")
+        ) as fetch:
+            with self.assertRaisesRegex(DependentsCountError, "displayed dependents count"):
+                collect_dependents(fetch)
+        self.assertEqual(3, fetch.call_count)
+
+    def test_zero_and_formatted_counts(self):
+        from scripts.collect_used_by import parse_dependents_page
+        for text, expected in [("0", 0), ("1,234", 1234)]:
+            with self.subTest(text=text):
+                self.assertEqual((expected, [], None), parse_dependents_page(
+                    self.page([]).replace("112 Repositories", text + " Repositories")))
 
     def test_missing_pagination_and_failed_next_page_are_not_partial_success(self):
         from scripts.collect_used_by import collect_dependents, parse_dependents_page
