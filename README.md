@@ -4,7 +4,7 @@
 
 <div align="center">
 
-<!-- 将 jmcomic-overview.mp4 拖放到下方空行处，自动生成 user-attachments 链接后点击 Commit changes 即可预览 -->
+https://github.com/user-attachments/assets/dfcd2b1e-b3e4-46a0-8962-2399c4cdc07d
 
 
 </div>
