@@ -223,7 +223,7 @@ def render_profile_card(metrics: ProfileMetrics, theme: str) -> str:
     <rect x="0" y="0" width="456" height="2.5" fill="url(#hybGrad{sfx})"/>
     <text x="20" y="34" class="sans" font-size="22" font-weight="800" fill="{p['fg']}" letter-spacing="-0.4">Hello, I'm {escape(metrics.username)} 👋</text>
     <text x="20" y="63" class="sans" font-size="13" fill="{p['sub']}">Love writing <tspan fill="{p['c1']}" font-weight="700">Python</tspan> &amp; pursuing <tspan fill="{p['c2']}" font-weight="600">excellent system design</tspan>.</text>
-    <text x="20" y="86" class="sans" font-size="12.5" fill="{p['muted']}">Building interesting open-source tools whenever I'm free.</text>
+    <text x="20" y="86" class="sans" font-size="12.5" fill="{p['muted']}">Building interesting open-source projects whenever I'm free.</text>
   </g>
   <rect x="0.5" y="0.5" width="455" height="105" rx="12" fill="none" stroke="{p['tile_bd']}"/>
 

@@ -33,6 +33,7 @@ class GenerateProfileCardTests(unittest.TestCase):
             root = ET.fromstring(svg)
             self.assertTrue(root.tag.endswith("svg"))
             self.assertIn("Hello, I'm hect0x7", svg)
+            self.assertIn("open-source projects", svg)
             self.assertIn("15.6k+", svg)
             self.assertIn("637", svg)
             self.assertIn("24", svg)
