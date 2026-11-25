@@ -26,6 +26,10 @@ files=(
   profile/star-history-dark.svg
   profile/star-history-JMComic-Crawler-Python.svg
   profile/star-history-JMComic-Crawler-Python-dark.svg
+  profile/profile-card-light.svg
+  profile/profile-card-dark.svg
+  profile/profile-3d-light.svg
+  profile/profile-3d-dark.svg
 )
 
 for file in "${files[@]}"; do

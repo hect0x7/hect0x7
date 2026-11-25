@@ -214,9 +214,76 @@ jobs:
           path: star-history/*.svg
           if-no-files-found: error
 
-  # Job 5: Deploy
+  # Job 5: Profile Bento Card
+  generate-profile-card:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout workflow repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run profile card generator tests
+        run: python -m unittest discover -s tests -p 'test_generate_profile_card.py' -v
+
+      - name: Generate light and dark profile cards
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/generate_profile_card.py --username "${{ github.repository_owner }}" --output-dir profile-card
+
+      - name: Upload profile card artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: profile-card-assets
+          path: profile-card/*.svg
+          if-no-files-found: error
+
+  # Job 6: 3D Contribution Graph
+  generate-profile-3d:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout workflow repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run 3D freezer tests
+        run: python -m unittest discover -s tests -p 'test_freeze_3d_contrib.py' -v
+
+      - name: Generate 3D contribution graphs
+        uses: yoshi389111/github-profile-3d-contrib@v0.9.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+
+      - name: Prepare light and static dark 3D assets
+        run: |
+          mkdir -p profile-3d
+          python scripts/freeze_3d_contrib.py \
+            --input profile-3d-contrib/profile-green.svg \
+            --output profile-3d/profile-3d-light.svg
+          python scripts/freeze_3d_contrib.py \
+            --input profile-3d-contrib/profile-night-rainbow.svg \
+            --output profile-3d/profile-3d-dark.svg
+
+      - name: Upload 3D contribution artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: profile-3d-assets
+          path: profile-3d/*.svg
+          if-no-files-found: error
+
+  # Job 7: Deploy
   deploy:
-    needs: [generate-snake, generate-main-stats, generate-pins, generate-star-history]
+    needs: [generate-snake, generate-main-stats, generate-pins, generate-star-history, generate-profile-card, generate-profile-3d]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -253,6 +320,18 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: star-history-assets
+          path: dist/profile
+
+      - name: Download profile card artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: profile-card-assets
+          path: dist/profile
+
+      - name: Download 3D contribution artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: profile-3d-assets
           path: dist/profile
 
       - name: Include output branch README
