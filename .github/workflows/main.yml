@@ -38,10 +38,11 @@ jobs:
           path: dist/*.svg
           if-no-files-found: error
   
-  # Job 2: Main Stats (Stats & Top Langs) - Parallel 2x2 Matrix
+  # Job 2: Main Stats (Stats & Top Langs) - Throttled 2x2 Matrix with retry
   generate-main-stats:
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 2
       matrix:
         type: [stats, top-langs]
         theme: [light, dark]
@@ -57,7 +58,29 @@ jobs:
             username=${{ github.repository_owner }}&${{ matrix.type == 'stats' && 'show_icons=true' || 'layout=compact&langs_count=6&line_height=25' }}${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
           path: ${{ matrix.type }}-${{ matrix.theme == 'dark' && 'dark' || 'light' }}.svg
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
+      - name: Check generated card
+        id: check
+        shell: bash
+        run: |
+          file="${{ matrix.type }}-${{ matrix.theme == 'dark' && 'dark' || 'light' }}.svg"
+          if [[ -s "$file" ]] && ! grep -Fq 'Something went wrong!' "$file"; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            sleep 8
+          fi
+
+      - name: Retry ${{ matrix.type }} (${{ matrix.theme }})
+        if: steps.check.outputs.ok != 'true'
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: ${{ matrix.type }}
+          options: >-
+            username=${{ github.repository_owner }}&${{ matrix.type == 'stats' && 'show_icons=true' || 'layout=compact&langs_count=6&line_height=25' }}${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
+          path: ${{ matrix.type }}-${{ matrix.theme == 'dark' && 'dark' || 'light' }}.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
@@ -65,9 +88,10 @@ jobs:
           path: ${{ matrix.type }}-${{ matrix.theme == 'dark' && 'dark' || 'light' }}.svg
           if-no-files-found: error
 
-  # Job 3: Repo Pins - Parallel 4x2 Matrix
+  # Job 3: Repo Pins - Throttled 4x2 Matrix with retry
   generate-pins:
     strategy:
+      max-parallel: 2
       matrix:
         repo: [JMComic-Crawler-Python, jmcomic-ai, jm-view-server, JMComic-APK]
         theme: [light, dark]
@@ -80,7 +104,28 @@ jobs:
           options: username=${{ github.repository_owner }}&repo=${{ matrix.repo }}&show_owner=true${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
           path: pin-${{ matrix.repo }}${{ matrix.theme == 'dark' && '-dark' || '' }}.svg
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
+      - name: Check generated pin
+        id: check
+        shell: bash
+        run: |
+          file="pin-${{ matrix.repo }}${{ matrix.theme == 'dark' && '-dark' || '' }}.svg"
+          if [[ -s "$file" ]] && ! grep -Fq 'Something went wrong!' "$file"; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            sleep 8
+          fi
+
+      - name: Retry repo pin (${{ matrix.repo }}) (${{ matrix.theme }})
+        if: steps.check.outputs.ok != 'true'
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: pin
+          options: username=${{ github.repository_owner }}&repo=${{ matrix.repo }}&show_owner=true${{ matrix.theme == 'dark' && '&theme=radical' || '' }}
+          path: pin-${{ matrix.repo }}${{ matrix.theme == 'dark' && '-dark' || '' }}.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload pin artifact
         uses: actions/upload-artifact@v7
         with:
