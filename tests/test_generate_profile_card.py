@@ -33,22 +33,24 @@ class GenerateProfileCardTests(unittest.TestCase):
             root = ET.fromstring(svg)
             self.assertTrue(root.tag.endswith("svg"))
             self.assertIn("Hello, I'm hect0x7", svg)
-            self.assertIn("open-source projects", svg)
+            self.assertIn("Open-source maker focused on", svg)
+            self.assertIn("Building projects I enjoy using, and sharing them openly.", svg)
             self.assertIn("15.6k+", svg)
             self.assertIn("637", svg)
             self.assertIn("24", svg)
             for skill in (
-                "Python",
+                "Product",
+                "System Design",
+                "AI Agents",
                 "Full-Stack",
-                "AI",
-                "Databases",
+                "Data &amp; DB",
                 "Networking",
                 "Reverse Eng.",
-                "Web Scraping",
                 "Automation",
             ):
                 self.assertIn(skill, svg)
             self.assertNotIn("Rust", svg)
+            self.assertNotIn("Python", svg)
             self.assertNotIn("Reach me", svg)
 
     def test_write_profile_cards(self) -> None:
