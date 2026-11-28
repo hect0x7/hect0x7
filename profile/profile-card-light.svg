@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="166" viewBox="0 0 900 166" fill="none" role="img" aria-label="hect0x7 GitHub Profile Card">
+  <defs>
+    <linearGradient id="hybGradL" x1="0" y1="0" x2="456" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0969da"/>
+      <stop offset="55%" stop-color="#8250df"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <clipPath id="hybClipL"><rect x="0.5" y="0.5" width="455" height="105" rx="12"/></clipPath>
+  </defs>
+  <style>
+    .sans { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace; }
+  </style>
+  <rect width="900" height="166" fill="#ffffff"/>
+
+  <!-- Left Top: Intro Card (456 x 106) -->
+  <g clip-path="url(#hybClipL)">
+    <rect x="0" y="0" width="456" height="106" fill="#f0f6fc"/>
+    <rect x="0" y="0" width="456" height="2.5" fill="url(#hybGradL)"/>
+    <text x="20" y="34" class="sans" font-size="22" font-weight="800" fill="#1f2328" letter-spacing="-0.4">Hello, I'm hect0x7 👋</text>
+    <text x="20" y="63" class="sans" font-size="13" fill="#3b434b">Open-source maker focused on <tspan fill="#0969da" font-weight="700">product</tspan> &amp; <tspan fill="#0f766e" font-weight="600">system design</tspan>.</text>
+    <text x="20" y="86" class="sans" font-size="12.5" fill="#57606a">Building projects I enjoy using, and sharing them openly.</text>
+  </g>
+  <rect x="0.5" y="0.5" width="455" height="105" rx="12" fill="none" stroke="#d0d7de"/>
+
+  <!-- Left Bottom: 3-Column KPI Bar (456 x 50) -->
+  <rect x="0.5" y="116.5" width="455" height="49" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="76" y="138" text-anchor="middle" class="mono" font-size="16" font-weight="800" fill="#0969da">15.6k+</text>
+  <text x="76" y="154" text-anchor="middle" class="mono" font-size="9" fill="#57606a" letter-spacing="0.6">TOTAL STARS</text>
+
+  <line x1="152" y1="127" x2="152" y2="155" stroke="#d0d7de"/>
+  <text x="228" y="138" text-anchor="middle" class="mono" font-size="16" font-weight="800" fill="#8250df">637</text>
+  <text x="228" y="154" text-anchor="middle" class="mono" font-size="9" fill="#57606a" letter-spacing="0.6">FOLLOWERS</text>
+
+  <line x1="304" y1="127" x2="304" y2="155" stroke="#d0d7de"/>
+  <text x="380" y="138" text-anchor="middle" class="mono" font-size="16" font-weight="800" fill="#0f766e">25</text>
+  <text x="380" y="154" text-anchor="middle" class="mono" font-size="9" fill="#57606a" letter-spacing="0.6">PUBLIC REPOS</text>
+
+  <!-- Right: 4x2 Mini Bento Skill Tiles -->
+  <g transform="translate(468, 0)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#eef5fc" stroke="#0969da" stroke-opacity="0.75"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><circle cx="9" cy="9" r="6" stroke="#0969da" stroke-width="1.45"/><polygon points="11.8,6.2 10.1,10.1 6.2,11.8 7.9,7.9" stroke="#0969da" stroke-width="1.35" stroke-linejoin="round"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="12" font-weight="600" fill="#0969da">Product</text>
+  </g>
+  <g transform="translate(578, 0)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#f6f8fa" stroke="#d0d7de" stroke-opacity="1"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><rect x="6.5" y="2.6" width="5" height="3.6" rx="1" stroke="#0f766e" stroke-width="1.4"/><rect x="2.4" y="11.8" width="5" height="3.6" rx="1" stroke="#0f766e" stroke-width="1.4"/><rect x="10.6" y="11.8" width="5" height="3.6" rx="1" stroke="#0f766e" stroke-width="1.4"/><path d="M9 6.2V9M4.9 11.8V9h8.2v2.8" stroke="#0f766e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="11.5" font-weight="600" fill="#1f2328">System Design</text>
+  </g>
+  <g transform="translate(688, 0)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#f6f8fa" stroke="#d0d7de" stroke-opacity="1"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><path d="M9 2.8 10.7 7.3 15.2 9 10.7 10.7 9 15.2 7.3 10.7 2.8 9 7.3 7.3 9 2.8Z" stroke="#8250df" stroke-width="1.45" stroke-linejoin="round"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="12" font-weight="600" fill="#1f2328">AI Agents</text>
+  </g>
+  <g transform="translate(798, 0)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#f6f8fa" stroke="#d0d7de" stroke-opacity="1"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><path d="M9 3.5 15 6.5 9 9.5 3 6.5 9 3.5Z" stroke="#0550ae" stroke-width="1.45" stroke-linejoin="round"/><path d="M3 9.8 9 12.8 15 9.8" stroke="#0550ae" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12.8 9 15.8 15 12.8" stroke="#0550ae" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="12" font-weight="600" fill="#1f2328">Full-Stack</text>
+  </g>
+  <g transform="translate(468, 88)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#f6f8fa" stroke="#d0d7de" stroke-opacity="1"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><ellipse cx="9" cy="5" rx="5.2" ry="2" stroke="#1a7f37" stroke-width="1.45"/><path d="M3.8 5v4c0 1.1 2.3 2 5.2 2s5.2-.9 5.2-2V5" stroke="#1a7f37" stroke-width="1.45"/><path d="M3.8 9v4c0 1.1 2.3 2 5.2 2s5.2-.9 5.2-2V9" stroke="#1a7f37" stroke-width="1.45"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="12" font-weight="600" fill="#1f2328">Data &amp; DB</text>
+  </g>
+  <g transform="translate(578, 88)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#f6f8fa" stroke="#d0d7de" stroke-opacity="1"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><circle cx="9" cy="9" r="6" stroke="#8250df" stroke-width="1.45"/><path d="M3.3 9h11.4M9 3c1.8 1.6 2.7 3.6 2.7 6S10.8 13.4 9 15C7.2 13.4 6.3 11.4 6.3 9S7.2 4.6 9 3Z" stroke="#8250df" stroke-width="1.35"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="12" font-weight="600" fill="#1f2328">Networking</text>
+  </g>
+  <g transform="translate(688, 88)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#f6f8fa" stroke="#d0d7de" stroke-opacity="1"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><path d="M6.2 5.5 3 9l3.2 3.5M11.8 5.5 15 9l-3.2 3.5M10.2 4.2 7.8 13.8" stroke="#bc4c00" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="11.5" font-weight="600" fill="#1f2328">Reverse Eng.</text>
+  </g>
+  <g transform="translate(798, 88)">
+    <rect x="0.5" y="0.5" width="101" height="77" rx="11" fill="#f6f8fa" stroke="#d0d7de" stroke-opacity="1"/>
+    <rect x="33" y="11" width="36" height="36" rx="9" fill="#ffffff" stroke="#d8dee4"/>
+    <g transform="translate(41, 19) scale(1.12)"><path d="M10.2 2.8 4.5 10h4.2l-.9 5.2 5.7-7.2H9.3l.9-5.2Z" stroke="#0969da" stroke-width="1.45" stroke-linejoin="round"/></g>
+    <text x="51" y="64" text-anchor="middle" class="sans" font-size="12" font-weight="600" fill="#1f2328">Automation</text>
+  </g>
+</svg>
